@@ -86,6 +86,7 @@
     text-decoration: underline;
   }
 
+  /* === АССИСТЕНТ === */
   .assistant {
     border-left: var(--border);
     padding-left: 40px;
@@ -154,23 +155,44 @@
 
 </div>
 
+<!-- скрытый аудио-контейнер -->
 <div class="audio" id="audio"></div>
 
 <script>
   const assistant = document.getElementById('assistant');
-  const audio = document.getElementById('audio');
+  const audioContainer = document.getElementById('audio');
+
   let active = false;
   let player = null;
 
-  assistant.addEventListener('click', () => {
+  assistant.addEventListener('click', async () => {
     if (!active) {
       assistant.classList.add('active');
       assistant.textContent = '■';
 
-      audio.innerHTML = `
-        <audio id="player" src="loop.mp3" autoplay loop></audio>
+      audioContainer.innerHTML = `
+        <audio id="player" loop preload="auto">
+          <source src="loop.mp3" type="audio/mpeg">
+        </audio>
       `;
+
       player = document.getElementById('player');
+      player.volume = 0;
+
+      try {
+        await player.play();
+
+        /* мягкий fade-in */
+        let v = 0;
+        const fade = setInterval(() => {
+          v += 0.04;
+          player.volume = Math.min(v, 1);
+          if (v >= 1) clearInterval(fade);
+        }, 60);
+
+      } catch (e) {
+        console.error('Audio play blocked:', e);
+      }
 
       active = true;
     } else {
@@ -179,9 +201,10 @@
 
       if (player) {
         player.pause();
-        player = null;
+        player.currentTime = 0;
       }
-      audio.innerHTML = '';
+
+      audioContainer.innerHTML = '';
       active = false;
     }
   });

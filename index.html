@@ -86,7 +86,6 @@
     text-decoration: underline;
   }
 
-  /* === АССИСТЕНТ === */
   .assistant {
     border-left: var(--border);
     padding-left: 40px;
@@ -129,13 +128,9 @@
     <div class="cell">ОДНОДНЕВНАЯ ВЫСТАВКА</div>
   </div>
 
-  <div class="cell author">
-    Андрей Дей
-  </div>
+  <div class="cell author">Андрей Дей</div>
 
-  <div class="cell title">
-    ФАС
-  </div>
+  <div class="cell title">ФАС</div>
 
   <div class="cell desc">
     <div>
@@ -165,6 +160,7 @@
   const assistant = document.getElementById('assistant');
   const audio = document.getElementById('audio');
   let active = false;
+  let player = null;
 
   assistant.addEventListener('click', () => {
     if (!active) {
@@ -172,21 +168,19 @@
       assistant.textContent = '■';
 
       audio.innerHTML = `
-        <iframe
-          width="0"
-          height="0"
-          src="https://www.youtube.com/embed/_zEkLm3j8Aw
-            ?start=7438
-            &autoplay=1
-            &controls=0"
-          allow="autoplay">
-        </iframe>
+        <audio id="player" src="loop.mp3" autoplay loop></audio>
       `;
+      player = document.getElementById('player');
 
       active = true;
     } else {
       assistant.classList.remove('active');
       assistant.textContent = '▶';
+
+      if (player) {
+        player.pause();
+        player = null;
+      }
       audio.innerHTML = '';
       active = false;
     }

@@ -8,15 +8,6 @@
 <meta property="og:title" content="Андрей Дей — Фас">
 <meta property="og:description" content="Однодневная выставка графики, скульптуры, инсталляции и видео 15 июля 2026, Москва.">
 <meta property="og:image" content="preview.png">
-<meta property="og:image:type" content="image/png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-
-<!-- Twitter -->
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Андрей Дей — Фас">
-<meta name="twitter:description" content="Однодневная выставка графики, скульптуры, инсталляции и видео 15 июля 2026, Москва.">
-<meta name="twitter:image" content="preview.png">
 
 <title>Андрей Дей — Фас</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -78,16 +69,23 @@ body {
   font-size: clamp(36px, 5vw, 72px);
 }
 
-/* === ФАС + ЭКРАН === */
+/* === ФАС + ИНТЕРАКТИВ === */
 .title-row {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: auto 1fr;
   min-height: 30vh;
 }
 
-.include {
+.title {
+  justify-content: center;
+  font-size: clamp(72px, 12vw, 180px);
+  letter-spacing: 0.15em;
   border-right: var(--border);
+}
+
+.include {
   padding: 0;
+  border-bottom: var(--border);
 }
 
 /* экран */
@@ -126,12 +124,6 @@ body {
   opacity: 0;
 }
 
-.title {
-  justify-content: center;
-  font-size: clamp(72px, 12vw, 180px);
-  letter-spacing: 0.15em;
-}
-
 .desc {
   font-size: 22px;
   line-height: 1.6;
@@ -160,15 +152,15 @@ body {
   .top { grid-template-columns: 1fr; }
   .desc { grid-template-columns: 1fr; }
   .title-row { grid-template-columns: 1fr; }
-  .include {
+  .title {
     border-right: none;
     border-bottom: var(--border);
+  }
+  .include {
     min-height: 40vh;
   }
 }
 </style>
-
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><circle cx='8' cy='8' r='8' fill='white'/></svg>">
 </head>
 
 <body>
@@ -183,13 +175,14 @@ body {
   <div class="cell author">Андрей Дей</div>
 
   <div class="title-row">
+    <div class="cell title">Фас</div>
+
     <div class="include">
       <div class="drone-screen">
         <canvas class="drone-canvas"></canvas>
         <div class="drone-hint">кликни</div>
       </div>
     </div>
-    <div class="cell title">Фас</div>
   </div>
 
   <div class="cell desc">
@@ -228,33 +221,16 @@ body {
   resize();
   new ResizeObserver(resize).observe(screen);
 
-  /* AUDIO */
-  let audioCtx, droneOsc, droneGain, soundEnabled = false;
+  /* ===== AUDIO ===== */
+  let audioCtx, soundEnabled = false;
 
   function unlockAudio() {
     if (audioCtx) return;
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-    droneOsc = audioCtx.createOscillator();
-    droneGain = audioCtx.createGain();
-
-    droneOsc.type = 'sine';
-    droneOsc.frequency.value = 55;
-    droneGain.gain.value = 0;
-
-    droneOsc.connect(droneGain);
-    droneGain.connect(audioCtx.destination);
-    droneOsc.start();
-
-    droneGain.gain.linearRampToValueAtTime(
-      0.035,
-      audioCtx.currentTime + 3
-    );
-
     soundEnabled = true;
   }
 
-  function playBell(freq) {
+  function playHit(freq, dur = 0.2) {
     if (!soundEnabled) return;
     const t = audioCtx.currentTime;
     const osc = audioCtx.createOscillator();
@@ -264,18 +240,19 @@ body {
     osc.frequency.value = freq;
 
     gain.gain.setValueAtTime(0.0001, t);
-    gain.gain.exponentialRampToValueAtTime(0.15, t + 0.01);
-    gain.gain.exponentialRampToValueAtTime(0.0001, t + 1.2);
+    gain.gain.exponentialRampToValueAtTime(0.12, t + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
 
     osc.connect(gain);
     gain.connect(audioCtx.destination);
+
     osc.start(t);
-    osc.stop(t + 1.3);
+    osc.stop(t + dur + 0.05);
   }
 
   function randomFace() {
     return {
-      eyeGap: 16 + Math.random() * 10,
+      eyeGap: 14 + Math.random() * 10,
       eyeY: -6 + Math.random() * 4,
       eyeR: 3 + Math.random() * 4,
       mouthR: 4 + Math.random() * 6
@@ -307,7 +284,7 @@ body {
 
   class Face {
     constructor(x, y) {
-      this.r = 22 + Math.random() * 18;
+      this.r = 20 + Math.random() * 16;
       this.x = x;
       this.y = y;
       const a = Math.random() * Math.PI * 2;
@@ -324,17 +301,20 @@ body {
       this.wobble += dt * 0.6;
 
       let hit = false;
+
       if (this.x - this.r < 0 || this.x + this.r > W) {
-        this.vx *= -1; hit = true;
+        this.vx *= -1;
+        hit = true;
       }
       if (this.y - this.r < 0 || this.y + this.r > H) {
-        this.vy *= -1; hit = true;
+        this.vy *= -1;
+        hit = true;
       }
 
       this.x = Math.max(this.r, Math.min(W - this.r, this.x));
       this.y = Math.max(this.r, Math.min(H - this.r, this.y));
 
-      if (hit) playBell(180 + this.r * 6);
+      if (hit) playHit(200 + this.r * 6);
     }
 
     draw() {
@@ -342,18 +322,47 @@ body {
     }
   }
 
-  const faces = [];
-  for (let i = 0; i < 6; i++) {
-    faces.push(new Face(Math.random()*W, Math.random()*H));
+  let faces = [];
+
+  function desiredCount() {
+    return Math.max(4, Math.floor((W * H) / 45000));
   }
+
+  function resetFaces() {
+    faces = [];
+    const n = desiredCount();
+    for (let i = 0; i < n; i++) {
+      faces.push(new Face(Math.random()*W, Math.random()*H));
+    }
+  }
+
+  resetFaces();
 
   let last = performance.now();
   function loop(t) {
     const dt = (t - last) / 1000;
     last = t;
+
     ctx.clearRect(0, 0, W, H);
-    faces.forEach(f => f.step(dt));
-    faces.forEach(f => f.draw());
+
+    for (let i = 0; i < faces.length; i++) {
+      faces[i].step(dt);
+      for (let j = i + 1; j < faces.length; j++) {
+        const a = faces[i], b = faces[j];
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        const d = Math.hypot(dx, dy);
+        if (d > 0 && d < a.r + b.r) {
+          playHit(260 + Math.random() * 200, 0.15);
+        }
+      }
+      faces[i].draw();
+    }
+
+    if (faces.length > desiredCount() * 1.6) {
+      resetFaces();
+    }
+
     requestAnimationFrame(loop);
   }
   requestAnimationFrame(loop);

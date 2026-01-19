@@ -3,164 +3,126 @@
 <head>
 <meta charset="UTF-8">
 
-<!-- Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="Андрей Дей — Фас">
 <meta property="og:description" content="Однодневная выставка графики, скульптуры, инсталляции и видео 15 июля 2026, Москва.">
 <meta property="og:image" content="preview.png">
 
-<title>Андрей Дей — Фас</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Андрей Дей — Фас</title>
 
 <style>
 :root {
-  --bg: #000;
-  --fg: #fff;
-  --border: 1px solid #fff;
+  --bg:#000;
+  --fg:#fff;
+  --border:1px solid #fff;
 }
 
-* { box-sizing: border-box; }
+* { box-sizing:border-box; }
 
 body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--fg);
-  font-family:
-    -apple-system,
-    BlinkMacSystemFont,
-    "SF Pro Display",
-    "SF Pro Text",
-    system-ui,
-    Helvetica,
-    Arial,
-    sans-serif;
+  margin:0;
+  background:var(--bg);
+  color:var(--fg);
+  font-family: system-ui, -apple-system, "sf pro text", helvetica, arial, sans-serif;
 }
 
 .poster {
-  min-height: 100vh;
-  display: grid;
-  grid-template-rows: auto auto auto auto 1fr;
+  min-height:100vh;
+  display:grid;
+  grid-template-rows:auto auto auto auto 1fr;
 }
 
 .cell {
-  border-bottom: var(--border);
-  padding: 24px 40px;
-  display: flex;
-  align-items: center;
+  border-bottom:var(--border);
+  padding:24px 40px;
+  display:flex;
+  align-items:center;
 }
 
 .top {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display:grid;
+  grid-template-columns:1fr 1fr;
 }
 
 .top .cell {
-  border-right: var(--border);
-  justify-content: center;
-  font-size: 22px;
-  letter-spacing: 0.15em;
+  border-right:var(--border);
+  justify-content:center;
+  font-size:22px;
+  letter-spacing:.12em;
 }
 
-.top .cell:last-child {
-  border-right: none;
-}
+.top .cell:last-child { border-right:none; }
 
 .author {
-  font-size: clamp(36px, 5vw, 72px);
+  font-size:clamp(36px,5vw,72px);
 }
 
-/* === ФАС + ИНТЕРАКТИВ === */
 .title-row {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  min-height: 30vh;
+  display:grid;
+  grid-template-columns:auto 1fr;
+  min-height:30vh;
 }
 
 .title {
-  justify-content: center;
-  font-size: clamp(72px, 12vw, 180px);
-  letter-spacing: 0.15em;
-  border-right: var(--border);
+  justify-content:center;
+  font-size:clamp(72px,12vw,180px);
+  letter-spacing:.15em;
+  border-right:var(--border);
 }
 
-.include {
-  padding: 0;
-  border-bottom: var(--border);
+.interactive {
+  position:relative;
+  border-bottom:var(--border);
+  overflow:hidden;
 }
 
-/* экран */
-.drone-screen {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  background: #000;
-  overflow: hidden;
+canvas {
+  display:block;
 }
 
-.drone-canvas {
-  width: 100%;
-  height: 100%;
-  display: block;
+.button-wrap {
+  position:absolute;
+  bottom:20px;
+  right:20px;
 }
 
-.drone-hint {
-  position: absolute;
-  right: 18px;
-  bottom: 18px;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  border: 1px solid rgba(255,255,255,0.6);
-  color: rgba(255,255,255,0.75);
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-  transition: opacity 0.6s ease;
-}
-
-.drone-hint.hidden {
-  opacity: 0;
+button {
+  background:#fff;
+  color:#000;
+  border:none;
+  padding:12px 22px;
+  font-size:18px;
+  cursor:pointer;
 }
 
 .desc {
-  font-size: 22px;
-  line-height: 1.6;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 40px;
+  font-size:22px;
+  line-height:1.6;
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:40px;
 }
 
 .bottom {
-  display: grid;
-  grid-template-columns: 1fr;
+  justify-content:center;
 }
 
-.telegram a {
-  color: var(--fg);
-  text-decoration: none;
-  font-size: 18px;
-  letter-spacing: 0.08em;
+a {
+  color:var(--fg);
+  text-decoration:none;
 }
 
-.telegram a:hover {
-  text-decoration: underline;
-}
+a:hover { text-decoration:underline; }
 
-@media (max-width: 900px) {
-  .top { grid-template-columns: 1fr; }
-  .desc { grid-template-columns: 1fr; }
-  .title-row { grid-template-columns: 1fr; }
-  .title {
-    border-right: none;
-    border-bottom: var(--border);
-  }
-  .include {
-    min-height: 40vh;
-  }
+@media (max-width:900px) {
+  .top { grid-template-columns:1fr; }
+  .title-row { grid-template-columns:1fr; }
+  .title { border-right:none; border-bottom:var(--border); }
 }
 </style>
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><circle cx='8' cy='8' r='8' fill='white'/></svg>">
 </head>
 
 <body>
@@ -168,8 +130,8 @@ body {
 <div class="poster">
 
   <div class="top">
-    <div class="cell">МОСКВА · 15 ИЮЛЯ 2026</div>
-    <div class="cell">ОДНОДНЕВНАЯ ВЫСТАВКА</div>
+    <div class="cell">Москва · 15 июля 2026</div>
+    <div class="cell">Однодневная выставка</div>
   </div>
 
   <div class="cell author">Андрей Дей</div>
@@ -177,10 +139,10 @@ body {
   <div class="title-row">
     <div class="cell title">Фас</div>
 
-    <div class="include">
-      <div class="drone-screen">
-        <canvas class="drone-canvas"></canvas>
-        <div class="drone-hint">кликни</div>
+    <div class="interactive">
+      <canvas id="faces"></canvas>
+      <div class="button-wrap">
+        <button id="click">Кликни</button>
       </div>
     </div>
   </div>
@@ -196,183 +158,103 @@ body {
   </div>
 
   <div class="cell bottom">
-    <div class="telegram">
-      <a href="https://t.me/fas_dei" target="_blank">
-        Анонсы и приглашения в Телеграме
-      </a>
-    </div>
+    <a href="https://t.me/fas_dei" target="_blank">
+      Анонсы и приглашения в телеграме
+    </a>
   </div>
 
 </div>
 
 <script>
-(() => {
-  const screen = document.querySelector('.drone-screen');
-  const canvas = screen.querySelector('.drone-canvas');
-  const hint = screen.querySelector('.drone-hint');
-  const ctx = canvas.getContext('2d');
+const canvas = document.getElementById('faces');
+const ctx = canvas.getContext('2d');
+let faces = [];
+let audioCtx;
+let drone, pad;
 
-  let W, H;
+function resize() {
+  canvas.width = canvas.parentElement.clientWidth;
+  canvas.height = canvas.parentElement.clientHeight;
+  normalizeFaces();
+}
+window.addEventListener('resize', resize);
+resize();
 
-  function resize() {
-    W = canvas.width = screen.clientWidth;
-    H = canvas.height = screen.clientHeight;
-  }
-  resize();
-  new ResizeObserver(resize).observe(screen);
+function maxFaces() {
+  return Math.floor((canvas.width * canvas.height) / 40000);
+}
 
-  /* ===== AUDIO ===== */
-  let audioCtx, soundEnabled = false;
+function normalizeFaces() {
+  faces = faces.slice(0, maxFaces());
+}
 
-  function unlockAudio() {
-    if (audioCtx) return;
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    soundEnabled = true;
-  }
+function addFace() {
+  if (faces.length >= maxFaces()) normalizeFaces();
 
-  function playHit(freq, dur = 0.2) {
-    if (!soundEnabled) return;
-    const t = audioCtx.currentTime;
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-
-    osc.type = 'sine';
-    osc.frequency.value = freq;
-
-    gain.gain.setValueAtTime(0.0001, t);
-    gain.gain.exponentialRampToValueAtTime(0.12, t + 0.01);
-    gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-
-    osc.start(t);
-    osc.stop(t + dur + 0.05);
-  }
-
-  function randomFace() {
-    return {
-      eyeGap: 14 + Math.random() * 10,
-      eyeY: -6 + Math.random() * 4,
-      eyeR: 3 + Math.random() * 4,
-      mouthR: 4 + Math.random() * 6
-    };
-  }
-
-  function drawFace(x, y, r, f, wobble) {
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.rotate(wobble);
-
-    ctx.fillStyle = '#fff';
-    ctx.beginPath();
-    ctx.arc(0, 0, r, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = '#000';
-    ctx.beginPath();
-    ctx.arc(-f.eyeGap/2, f.eyeY, f.eyeR, 0, Math.PI*2);
-    ctx.arc(f.eyeGap/2, f.eyeY, f.eyeR, 0, Math.PI*2);
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.arc(0, 10, f.mouthR, 0, Math.PI*2);
-    ctx.fill();
-
-    ctx.restore();
-  }
-
-  class Face {
-    constructor(x, y) {
-      this.r = 20 + Math.random() * 16;
-      this.x = x;
-      this.y = y;
-      const a = Math.random() * Math.PI * 2;
-      const s = 20 + Math.random() * 60;
-      this.vx = Math.cos(a) * s;
-      this.vy = Math.sin(a) * s;
-      this.face = randomFace();
-      this.wobble = Math.random() * Math.PI * 2;
-    }
-
-    step(dt) {
-      this.x += this.vx * dt;
-      this.y += this.vy * dt;
-      this.wobble += dt * 0.6;
-
-      let hit = false;
-
-      if (this.x - this.r < 0 || this.x + this.r > W) {
-        this.vx *= -1;
-        hit = true;
-      }
-      if (this.y - this.r < 0 || this.y + this.r > H) {
-        this.vy *= -1;
-        hit = true;
-      }
-
-      this.x = Math.max(this.r, Math.min(W - this.r, this.x));
-      this.y = Math.max(this.r, Math.min(H - this.r, this.y));
-
-      if (hit) playHit(200 + this.r * 6);
-    }
-
-    draw() {
-      drawFace(this.x, this.y, this.r, this.face, Math.sin(this.wobble) * 0.12);
-    }
-  }
-
-  let faces = [];
-
-  function desiredCount() {
-    return Math.max(4, Math.floor((W * H) / 45000));
-  }
-
-  function resetFaces() {
-    faces = [];
-    const n = desiredCount();
-    for (let i = 0; i < n; i++) {
-      faces.push(new Face(Math.random()*W, Math.random()*H));
-    }
-  }
-
-  resetFaces();
-
-  let last = performance.now();
-  function loop(t) {
-    const dt = (t - last) / 1000;
-    last = t;
-
-    ctx.clearRect(0, 0, W, H);
-
-    for (let i = 0; i < faces.length; i++) {
-      faces[i].step(dt);
-      for (let j = i + 1; j < faces.length; j++) {
-        const a = faces[i], b = faces[j];
-        const dx = b.x - a.x;
-        const dy = b.y - a.y;
-        const d = Math.hypot(dx, dy);
-        if (d > 0 && d < a.r + b.r) {
-          playHit(260 + Math.random() * 200, 0.15);
-        }
-      }
-      faces[i].draw();
-    }
-
-    if (faces.length > desiredCount() * 1.6) {
-      resetFaces();
-    }
-
-    requestAnimationFrame(loop);
-  }
-  requestAnimationFrame(loop);
-
-  canvas.addEventListener('pointerdown', e => {
-    unlockAudio();
-    faces.push(new Face(e.offsetX, e.offsetY));
-    hint.classList.add('hidden');
+  const r = 10 + Math.random()*20;
+  faces.push({
+    x:Math.random()*(canvas.width-2*r)+r,
+    y:Math.random()*(canvas.height-2*r)+r,
+    vx:(Math.random()-.5)*2,
+    vy:(Math.random()-.5)*2,
+    r
   });
-})();
+}
+
+function draw() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  faces.forEach(f=>{
+    f.x+=f.vx;
+    f.y+=f.vy;
+
+    let hit = false;
+    if (f.x<f.r||f.x>canvas.width-f.r){ f.vx*=-1; hit=true; }
+    if (f.y<f.r||f.y>canvas.height-f.r){ f.vy*=-1; hit=true; }
+
+    if (hit) edgeSound(f.r);
+
+    ctx.beginPath();
+    ctx.arc(f.x,f.y,f.r,0,Math.PI*2);
+    ctx.strokeStyle='#fff';
+    ctx.stroke();
+  });
+
+  requestAnimationFrame(draw);
+}
+draw();
+
+function initAudio() {
+  audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+
+  drone = audioCtx.createOscillator();
+  drone.type='sine';
+  drone.frequency.value=60;
+  drone.connect(audioCtx.destination);
+  drone.start();
+
+  pad = audioCtx.createOscillator();
+  pad.type='triangle';
+  pad.frequency.value=220;
+  pad.connect(audioCtx.destination);
+  pad.start();
+}
+
+function edgeSound(size) {
+  if (!audioCtx) return;
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.frequency.value = 200 + size*10;
+  g.gain.value = 0.03;
+  o.connect(g).connect(audioCtx.destination);
+  o.start();
+  o.stop(audioCtx.currentTime+0.1);
+}
+
+document.getElementById('click').addEventListener('click',()=>{
+  if (!audioCtx) initAudio();
+  addFace();
+});
 </script>
 
 </body>

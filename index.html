@@ -5,7 +5,7 @@
 
 <!-- Open Graph / Facebook / VK / Telegram -->
 <meta property="og:type" content="website">
-<meta property="og:title" content="Андрей Дей — ФАС">
+<meta property="og:title" content="Андрей Дей — Фас">
 <meta property="og:description" content="Однодневная выставка графики, скульптуры, инсталляции и видео 15 июля 2026, Москва.">
 <meta property="og:image" content="preview.png">
 <meta property="og:image:type" content="image/png">
@@ -14,15 +14,11 @@
 
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Андрей Дей — ФАС">
+<meta name="twitter:title" content="Андрей Дей — Фас">
 <meta name="twitter:description" content="Однодневная выставка графики, скульптуры, инсталляции и видео 15 июля 2026, Москва.">
 <meta name="twitter:image" content="preview.png">
 
-
-
-
-
-<title>Андрей Дей — ФАС</title>
+<title>Андрей Дей — Фас</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -38,8 +34,15 @@
     margin: 0;
     background: var(--bg);
     color: var(--fg);
-    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue",
-                 Helvetica, Arial, sans-serif;
+    font-family:
+      -apple-system,
+      BlinkMacSystemFont,
+      "SF Pro Display",
+      "SF Pro Text",
+      system-ui,
+      Helvetica,
+      Arial,
+      sans-serif;
   }
 
   .poster {
@@ -75,6 +78,20 @@
     font-size: clamp(36px, 5vw, 72px);
   }
 
+  /* === БЛОК С ФАС И РЕЗИНОВОЙ ЯЧЕЙКОЙ === */
+  .title-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    min-height: 30vh;
+  }
+
+  .include {
+    border-right: var(--border);
+    padding: 24px 40px;
+    display: flex;
+    align-items: center;
+  }
+
   .title {
     justify-content: center;
     font-size: clamp(72px, 12vw, 180px);
@@ -91,7 +108,7 @@
 
   .bottom {
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: 1fr;
     align-items: center;
   }
 
@@ -99,47 +116,25 @@
     color: var(--fg);
     text-decoration: none;
     font-size: 18px;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
   }
 
   .telegram a:hover {
     text-decoration: underline;
   }
 
-  /* === АССИСТЕНТ === */
-  .assistant {
-    border-left: var(--border);
-    padding-left: 40px;
-    cursor: pointer;
-    font-size: 28px;
-    letter-spacing: 0.2em;
-    user-select: none;
-  }
-
-  .assistant.active {
-    background: #fff;
-    color: #000;
-  }
-
-  .audio {
-    width: 0;
-    height: 0;
-    overflow: hidden;
-  }
-
   @media (max-width: 900px) {
     .top { grid-template-columns: 1fr; }
     .desc { grid-template-columns: 1fr; }
-    .bottom { grid-template-columns: 1fr; gap: 20px; }
-    .assistant {
-      border-left: none;
-      border-top: var(--border);
-      padding-top: 20px;
+    .title-row { grid-template-columns: 1fr; }
+    .include {
+      border-right: none;
+      border-bottom: var(--border);
     }
   }
 </style>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><circle cx='8' cy='8' r='8' fill='white'/></svg>">
 
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><circle cx='8' cy='8' r='8' fill='white'/></svg>">
 </head>
 
 <body>
@@ -153,7 +148,11 @@
 
   <div class="cell author">Андрей Дей</div>
 
-  <div class="cell title">ФАС</div>
+  <!-- ФАС + include.html -->
+  <div class="title-row">
+    <div class="include" id="include"></div>
+    <div class="cell title">Фас</div>
+  </div>
 
   <div class="cell desc">
     <div>
@@ -168,68 +167,22 @@
   <div class="cell bottom">
     <div class="telegram">
       <a href="https://t.me/fas_dei" target="_blank">
-        TELEGRAM · t.me/fas_dei
+        Анонсы и приглашения в Телеграме
       </a>
     </div>
-
-    <div class="assistant" id="assistant">▶</div>
   </div>
 
 </div>
 
-<!-- скрытый аудио-контейнер -->
-<div class="audio" id="audio"></div>
-
 <script>
-  const assistant = document.getElementById('assistant');
-  const audioContainer = document.getElementById('audio');
-
-  let active = false;
-  let player = null;
-
-  assistant.addEventListener('click', async () => {
-    if (!active) {
-      assistant.classList.add('active');
-      assistant.textContent = '■';
-
-      audioContainer.innerHTML = `
-        <audio id="player" loop preload="auto">
-          <source src="loop.mp3" type="audio/mpeg">
-        </audio>
-      `;
-
-      player = document.getElementById('player');
-      player.volume = 0;
-
-      try {
-        await player.play();
-
-        /* мягкий fade-in */
-        let v = 0;
-        const fade = setInterval(() => {
-          v += 0.04;
-          player.volume = Math.min(v, 1);
-          if (v >= 1) clearInterval(fade);
-        }, 60);
-
-      } catch (e) {
-        console.error('Audio play blocked:', e);
-      }
-
-      active = true;
-    } else {
-      assistant.classList.remove('active');
-      assistant.textContent = '▶';
-
-      if (player) {
-        player.pause();
-        player.currentTime = 0;
-      }
-
-      audioContainer.innerHTML = '';
-      active = false;
-    }
-  });
+  fetch('include.html')
+    .then(r => r.text())
+    .then(html => {
+      document.getElementById('include').innerHTML = html;
+    })
+    .catch(() => {
+      document.getElementById('include').innerHTML = '';
+    });
 </script>
 
 </body>

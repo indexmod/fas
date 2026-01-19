@@ -168,6 +168,7 @@ a:hover { text-decoration:underline; }
 <script>
 const canvas = document.getElementById('faces');
 const ctx = canvas.getContext('2d');
+
 let faces = [];
 let audioCtx;
 let drone, pad;
@@ -181,7 +182,7 @@ window.addEventListener('resize', resize);
 resize();
 
 function maxFaces() {
-  return Math.floor((canvas.width * canvas.height) / 40000);
+  return Math.max(1, Math.floor((canvas.width * canvas.height) / 50000));
 }
 
 function normalizeFaces() {
@@ -191,33 +192,66 @@ function normalizeFaces() {
 function addFace() {
   if (faces.length >= maxFaces()) normalizeFaces();
 
-  const r = 10 + Math.random()*20;
+  const r = 12 + Math.random() * 18;
   faces.push({
-    x:Math.random()*(canvas.width-2*r)+r,
-    y:Math.random()*(canvas.height-2*r)+r,
-    vx:(Math.random()-.5)*2,
-    vy:(Math.random()-.5)*2,
-    r
+    x: Math.random() * (canvas.width - 2 * r) + r,
+    y: Math.random() * (canvas.height - 2 * r) + r,
+    vx: (Math.random() - 0.5) * 1.6,
+    vy: (Math.random() - 0.5) * 1.6,
+    r,
+    cooldown: 0
   });
 }
 
-function draw() {
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+function drawFace(f) {
+  // head
+  ctx.beginPath();
+  ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+  ctx.stroke();
 
-  faces.forEach(f=>{
-    f.x+=f.vx;
-    f.y+=f.vy;
+  // eyes
+  const eyeOffset = f.r * 0.35;
+  const eyeR = Math.max(1.5, f.r * 0.08);
+
+  ctx.beginPath();
+  ctx.arc(f.x - eyeOffset, f.y - eyeOffset * 0.3, eyeR, 0, Math.PI * 2);
+  ctx.arc(f.x + eyeOffset, f.y - eyeOffset * 0.3, eyeR, 0, Math.PI * 2);
+  ctx.fill();
+
+  // mouth
+  ctx.beginPath();
+  ctx.arc(f.x, f.y + f.r * 0.25, f.r * 0.25, 0, Math.PI);
+  ctx.stroke();
+}
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.strokeStyle = '#fff';
+  ctx.fillStyle = '#fff';
+
+  faces.forEach(f => {
+    f.x += f.vx;
+    f.y += f.vy;
 
     let hit = false;
-    if (f.x<f.r||f.x>canvas.width-f.r){ f.vx*=-1; hit=true; }
-    if (f.y<f.r||f.y>canvas.height-f.r){ f.vy*=-1; hit=true; }
 
-    if (hit) edgeSound(f.r);
+    if (f.x < f.r || f.x > canvas.width - f.r) {
+      f.vx *= -1;
+      hit = true;
+    }
+    if (f.y < f.r || f.y > canvas.height - f.r) {
+      f.vy *= -1;
+      hit = true;
+    }
 
-    ctx.beginPath();
-    ctx.arc(f.x,f.y,f.r,0,Math.PI*2);
-    ctx.strokeStyle='#fff';
-    ctx.stroke();
+    if (hit && f.cooldown <= 0) {
+      edgeSound(f.r);
+      f.cooldown = 20;
+    }
+
+    if (f.cooldown > 0) f.cooldown--;
+
+    drawFace(f);
   });
 
   requestAnimationFrame(draw);
@@ -225,33 +259,44 @@ function draw() {
 draw();
 
 function initAudio() {
-  audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
   drone = audioCtx.createOscillator();
-  drone.type='sine';
-  drone.frequency.value=60;
-  drone.connect(audioCtx.destination);
+  const droneGain = audioCtx.createGain();
+  drone.type = 'sine';
+  drone.frequency.value = 55;
+  droneGain.gain.value = 0.04;
+  drone.connect(droneGain).connect(audioCtx.destination);
   drone.start();
 
   pad = audioCtx.createOscillator();
-  pad.type='triangle';
-  pad.frequency.value=220;
-  pad.connect(audioCtx.destination);
+  const padGain = audioCtx.createGain();
+  pad.type = 'triangle';
+  pad.frequency.value = 220;
+  padGain.gain.value = 0.025;
+  pad.connect(padGain).connect(audioCtx.destination);
   pad.start();
 }
 
 function edgeSound(size) {
   if (!audioCtx) return;
+
   const o = audioCtx.createOscillator();
   const g = audioCtx.createGain();
-  o.frequency.value = 200 + size*10;
-  g.gain.value = 0.03;
+
+  o.type = 'sine';
+  o.frequency.value = 180 + size * 8;
+
+  g.gain.setValueAtTime(0, audioCtx.currentTime);
+  g.gain.linearRampToValueAtTime(0.03, audioCtx.currentTime + 0.02);
+  g.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.18);
+
   o.connect(g).connect(audioCtx.destination);
   o.start();
-  o.stop(audioCtx.currentTime+0.1);
+  o.stop(audioCtx.currentTime + 0.2);
 }
 
-document.getElementById('click').addEventListener('click',()=>{
+document.getElementById('click').addEventListener('click', () => {
   if (!audioCtx) initAudio();
   addFace();
 });

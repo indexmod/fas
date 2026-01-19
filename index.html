@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 
-<!-- Open Graph / Facebook / VK / Telegram -->
+<!-- Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="Андрей Дей — Фас">
 <meta property="og:description" content="Однодневная выставка графики, скульптуры, инсталляции и видео 15 июля 2026, Москва.">
@@ -12,7 +12,7 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 
-<!-- Twitter Card -->
+<!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Андрей Дей — Фас">
 <meta name="twitter:description" content="Однодневная выставка графики, скульптуры, инсталляции и видео 15 июля 2026, Москва.">
@@ -22,116 +22,150 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-  :root {
-    --bg: #000;
-    --fg: #fff;
-    --border: 1px solid #fff;
-  }
+:root {
+  --bg: #000;
+  --fg: #fff;
+  --border: 1px solid #fff;
+}
 
-  * { box-sizing: border-box; }
+* { box-sizing: border-box; }
 
-  body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--fg);
-    font-family:
-      -apple-system,
-      BlinkMacSystemFont,
-      "SF Pro Display",
-      "SF Pro Text",
-      system-ui,
-      Helvetica,
-      Arial,
-      sans-serif;
-  }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "SF Pro Display",
+    "SF Pro Text",
+    system-ui,
+    Helvetica,
+    Arial,
+    sans-serif;
+}
 
-  .poster {
-    min-height: 100vh;
-    display: grid;
-    grid-template-rows: auto auto auto auto 1fr;
-  }
+.poster {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto auto auto auto 1fr;
+}
 
-  .cell {
-    border-bottom: var(--border);
-    padding: 24px 40px;
-    display: flex;
-    align-items: center;
-  }
+.cell {
+  border-bottom: var(--border);
+  padding: 24px 40px;
+  display: flex;
+  align-items: center;
+}
 
-  .top {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-  }
+.top {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
 
-  .top .cell {
-    border-right: var(--border);
-    justify-content: center;
-    font-size: 22px;
-    letter-spacing: 0.15em;
-  }
+.top .cell {
+  border-right: var(--border);
+  justify-content: center;
+  font-size: 22px;
+  letter-spacing: 0.15em;
+}
 
-  .top .cell:last-child {
-    border-right: none;
-  }
+.top .cell:last-child {
+  border-right: none;
+}
 
-  .author {
-    font-size: clamp(36px, 5vw, 72px);
-  }
+.author {
+  font-size: clamp(36px, 5vw, 72px);
+}
 
-  /* === БЛОК С ФАС И РЕЗИНОВОЙ ЯЧЕЙКОЙ === */
-  .title-row {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    min-height: 30vh;
-  }
+/* === ФАС + ЭКРАН === */
+.title-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  min-height: 30vh;
+}
 
+.include {
+  border-right: var(--border);
+  padding: 0;
+}
+
+/* экран */
+.drone-screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  overflow: hidden;
+}
+
+.drone-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.drone-hint {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.6);
+  color: rgba(255,255,255,0.75);
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+}
+
+.drone-hint.hidden {
+  opacity: 0;
+}
+
+.title {
+  justify-content: center;
+  font-size: clamp(72px, 12vw, 180px);
+  letter-spacing: 0.15em;
+}
+
+.desc {
+  font-size: 22px;
+  line-height: 1.6;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 40px;
+}
+
+.bottom {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.telegram a {
+  color: var(--fg);
+  text-decoration: none;
+  font-size: 18px;
+  letter-spacing: 0.08em;
+}
+
+.telegram a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 900px) {
+  .top { grid-template-columns: 1fr; }
+  .desc { grid-template-columns: 1fr; }
+  .title-row { grid-template-columns: 1fr; }
   .include {
-    border-right: var(--border);
-    padding: 24px 40px;
-    display: flex;
-    align-items: center;
+    border-right: none;
+    border-bottom: var(--border);
+    min-height: 40vh;
   }
-
-  .title {
-    justify-content: center;
-    font-size: clamp(72px, 12vw, 180px);
-    letter-spacing: 0.15em;
-  }
-
-  .desc {
-    font-size: 22px;
-    line-height: 1.6;
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 40px;
-  }
-
-  .bottom {
-    display: grid;
-    grid-template-columns: 1fr;
-    align-items: center;
-  }
-
-  .telegram a {
-    color: var(--fg);
-    text-decoration: none;
-    font-size: 18px;
-    letter-spacing: 0.08em;
-  }
-
-  .telegram a:hover {
-    text-decoration: underline;
-  }
-
-  @media (max-width: 900px) {
-    .top { grid-template-columns: 1fr; }
-    .desc { grid-template-columns: 1fr; }
-    .title-row { grid-template-columns: 1fr; }
-    .include {
-      border-right: none;
-      border-bottom: var(--border);
-    }
-  }
+}
 </style>
 
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><circle cx='8' cy='8' r='8' fill='white'/></svg>">
@@ -148,9 +182,13 @@
 
   <div class="cell author">Андрей Дей</div>
 
-  <!-- ФАС + include.html -->
   <div class="title-row">
-    <div class="include" id="include"></div>
+    <div class="include">
+      <div class="drone-screen">
+        <canvas class="drone-canvas"></canvas>
+        <div class="drone-hint">кликни</div>
+      </div>
+    </div>
     <div class="cell title">Фас</div>
   </div>
 
@@ -175,14 +213,157 @@
 </div>
 
 <script>
-  fetch('include.html')
-    .then(r => r.text())
-    .then(html => {
-      document.getElementById('include').innerHTML = html;
-    })
-    .catch(() => {
-      document.getElementById('include').innerHTML = '';
-    });
+(() => {
+  const screen = document.querySelector('.drone-screen');
+  const canvas = screen.querySelector('.drone-canvas');
+  const hint = screen.querySelector('.drone-hint');
+  const ctx = canvas.getContext('2d');
+
+  let W, H;
+
+  function resize() {
+    W = canvas.width = screen.clientWidth;
+    H = canvas.height = screen.clientHeight;
+  }
+  resize();
+  new ResizeObserver(resize).observe(screen);
+
+  /* AUDIO */
+  let audioCtx, droneOsc, droneGain, soundEnabled = false;
+
+  function unlockAudio() {
+    if (audioCtx) return;
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    droneOsc = audioCtx.createOscillator();
+    droneGain = audioCtx.createGain();
+
+    droneOsc.type = 'sine';
+    droneOsc.frequency.value = 55;
+    droneGain.gain.value = 0;
+
+    droneOsc.connect(droneGain);
+    droneGain.connect(audioCtx.destination);
+    droneOsc.start();
+
+    droneGain.gain.linearRampToValueAtTime(
+      0.035,
+      audioCtx.currentTime + 3
+    );
+
+    soundEnabled = true;
+  }
+
+  function playBell(freq) {
+    if (!soundEnabled) return;
+    const t = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+
+    gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.exponentialRampToValueAtTime(0.15, t + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 1.2);
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(t);
+    osc.stop(t + 1.3);
+  }
+
+  function randomFace() {
+    return {
+      eyeGap: 16 + Math.random() * 10,
+      eyeY: -6 + Math.random() * 4,
+      eyeR: 3 + Math.random() * 4,
+      mouthR: 4 + Math.random() * 6
+    };
+  }
+
+  function drawFace(x, y, r, f, wobble) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(wobble);
+
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(0, 0, r, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#000';
+    ctx.beginPath();
+    ctx.arc(-f.eyeGap/2, f.eyeY, f.eyeR, 0, Math.PI*2);
+    ctx.arc(f.eyeGap/2, f.eyeY, f.eyeR, 0, Math.PI*2);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(0, 10, f.mouthR, 0, Math.PI*2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  class Face {
+    constructor(x, y) {
+      this.r = 22 + Math.random() * 18;
+      this.x = x;
+      this.y = y;
+      const a = Math.random() * Math.PI * 2;
+      const s = 20 + Math.random() * 60;
+      this.vx = Math.cos(a) * s;
+      this.vy = Math.sin(a) * s;
+      this.face = randomFace();
+      this.wobble = Math.random() * Math.PI * 2;
+    }
+
+    step(dt) {
+      this.x += this.vx * dt;
+      this.y += this.vy * dt;
+      this.wobble += dt * 0.6;
+
+      let hit = false;
+      if (this.x - this.r < 0 || this.x + this.r > W) {
+        this.vx *= -1; hit = true;
+      }
+      if (this.y - this.r < 0 || this.y + this.r > H) {
+        this.vy *= -1; hit = true;
+      }
+
+      this.x = Math.max(this.r, Math.min(W - this.r, this.x));
+      this.y = Math.max(this.r, Math.min(H - this.r, this.y));
+
+      if (hit) playBell(180 + this.r * 6);
+    }
+
+    draw() {
+      drawFace(this.x, this.y, this.r, this.face, Math.sin(this.wobble) * 0.12);
+    }
+  }
+
+  const faces = [];
+  for (let i = 0; i < 6; i++) {
+    faces.push(new Face(Math.random()*W, Math.random()*H));
+  }
+
+  let last = performance.now();
+  function loop(t) {
+    const dt = (t - last) / 1000;
+    last = t;
+    ctx.clearRect(0, 0, W, H);
+    faces.forEach(f => f.step(dt));
+    faces.forEach(f => f.draw());
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+
+  canvas.addEventListener('pointerdown', e => {
+    unlockAudio();
+    faces.push(new Face(e.offsetX, e.offsetY));
+    hint.classList.add('hidden');
+  });
+})();
 </script>
 
 </body>

@@ -178,55 +178,58 @@ a:hover { text-decoration:underline; }
   resize();
   window.addEventListener('resize', resize);
 
-  /* ============= AUDIO ============= */
+  /* ================= AUDIO ================= */
   let audioCtx = null;
+  let droneOsc = null;
+  let droneGain = null;
 
   function unlockAudio() {
     if (!audioCtx) {
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       audioCtx.resume();
+
+      // дрон
+      droneOsc = audioCtx.createOscillator();
+      droneGain = audioCtx.createGain();
+
+      droneOsc.type = 'sine';
+      droneOsc.frequency.value = 55; // низкий фундамент
+      droneGain.gain.value = 0.03;
+
+      droneOsc.connect(droneGain);
+      droneGain.connect(audioCtx.destination);
+      droneOsc.start();
     }
   }
 
-  function playBell(freq) {
+  function playBell(size) {
     if (!audioCtx) return;
     const t = audioCtx.currentTime;
 
-    const carrier = audioCtx.createOscillator();
-    const mod = audioCtx.createOscillator();
-    const modGain = audioCtx.createGain();
+    const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
 
-    carrier.type = 'sine';
-    mod.type = 'sine';
+    osc.type = 'sine';
+    osc.frequency.value = 180 + size*6 + Math.random()*100;
 
-    carrier.frequency.value = freq;
-    mod.frequency.value = freq * (1.5 + Math.random() * 2);
-    modGain.gain.value = freq * 0.4;
+    gain.gain.setValueAtTime(0.01, t);
+    gain.gain.exponentialRampToValueAtTime(0.1, t + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 1);
 
-    gain.gain.setValueAtTime(0.0001, t);
-    gain.gain.exponentialRampToValueAtTime(0.3, t + 0.005);
-    gain.gain.exponentialRampToValueAtTime(0.0001, t + 1.2);
-
-    mod.connect(modGain);
-    modGain.connect(carrier.frequency);
-    carrier.connect(gain);
+    osc.connect(gain);
     gain.connect(audioCtx.destination);
 
-    carrier.start(t);
-    mod.start(t);
-    carrier.stop(t + 1.4);
-    mod.stop(t + 1.4);
+    osc.start(t);
+    osc.stop(t + 1.1);
   }
 
-  /* ============= FACE ============= */
+  /* ================= FACE ================= */
   function randomFace() {
     return {
-      eyeGap: 16 + Math.random() * 10,
-      eyeY: -6 + Math.random() * 4,
-      eyeR: 3 + Math.random() * 4,
-      mouthType: Math.floor(Math.random() * 3),
-      mouthR: 4 + Math.random() * 6
+      eyeGap: 12 + Math.random()*8,
+      eyeY: -4 + Math.random()*3,
+      eyeR: 2 + Math.random()*3,
+      mouthR: 3 + Math.random()*3
     };
   }
 
@@ -235,131 +238,107 @@ a:hover { text-decoration:underline; }
     ctx.translate(x, y);
     ctx.rotate(wobble);
 
-    // head
+    // лицо
     ctx.beginPath();
-    ctx.arc(0, 0, r, 0, Math.PI * 2);
+    ctx.arc(0, 0, r, 0, Math.PI*2);
     ctx.fillStyle = '#fff';
     ctx.fill();
 
     ctx.fillStyle = '#000';
 
-    // eyes
+    // глаза
     ctx.beginPath();
-    ctx.arc(-face.eyeGap / 2, face.eyeY, face.eyeR, 0, Math.PI * 2);
-    ctx.arc(face.eyeGap / 2, face.eyeY, face.eyeR, 0, Math.PI * 2);
+    ctx.arc(-face.eyeGap/2, face.eyeY, face.eyeR, 0, Math.PI*2);
+    ctx.arc(face.eyeGap/2, face.eyeY, face.eyeR, 0, Math.PI*2);
     ctx.fill();
 
-    // mouth
-    if (face.mouthType === 0) {
-      ctx.beginPath();
-      ctx.arc(0, 10, face.mouthR, 0, Math.PI * 2);
-      ctx.fill();
-    } else if (face.mouthType === 1) {
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(0, 12, face.mouthR + 3, 0, Math.PI);
-      ctx.stroke();
-    } else {
-      ctx.fillRect(-face.mouthR, 10, face.mouthR * 2, 2);
-    }
+    // рот только кружок
+    ctx.beginPath();
+    ctx.arc(0, 8, face.mouthR, 0, Math.PI*2);
+    ctx.fill();
 
     ctx.restore();
   }
 
-  /* ============= PHYSICS ============= */
+  /* ================= PHYSICS ================= */
   class Face {
     constructor(x, y) {
-      this.r = 22 + Math.random() * 18;
+      this.r = 12 + Math.random()*12; // уменьшенные размеры
       this.x = x;
       this.y = y;
-      const speed = 20 + Math.random() * 60;
-      const a = Math.random() * Math.PI * 2;
-      this.vx = Math.cos(a) * speed;
-      this.vy = Math.sin(a) * speed;
+      const speed = 20 + Math.random()*60;
+      const a = Math.random()*Math.PI*2;
+      this.vx = Math.cos(a)*speed;
+      this.vy = Math.sin(a)*speed;
       this.face = randomFace();
-      this.wobblePhase = Math.random() * Math.PI * 2;
+      this.wobblePhase = Math.random()*Math.PI*2;
     }
 
     step(dt) {
-      this.x += this.vx * dt;
-      this.y += this.vy * dt;
-      this.wobblePhase += dt * 0.6;
+      this.x += this.vx*dt;
+      this.y += this.vy*dt;
+      this.wobblePhase += dt*0.6;
 
       let hit = false;
+      if (this.x - this.r < 0) { this.x=this.r; this.vx=Math.abs(this.vx); hit=true; }
+      if (this.x + this.r > W) { this.x=W-this.r; this.vx=-Math.abs(this.vx); hit=true; }
+      if (this.y - this.r < 0) { this.y=this.r; this.vy=Math.abs(this.vy); hit=true; }
+      if (this.y + this.r > H) { this.y=H-this.r; this.vy=-Math.abs(this.vy); hit=true; }
 
-      if (this.x - this.r < 0) {
-        this.x = this.r;
-        this.vx = Math.abs(this.vx);
-        hit = true;
-      }
-      if (this.x + this.r > W) {
-        this.x = W - this.r;
-        this.vx = -Math.abs(this.vx);
-        hit = true;
-      }
-      if (this.y - this.r < 0) {
-        this.y = this.r;
-        this.vy = Math.abs(this.vy);
-        hit = true;
-      }
-      if (this.y + this.r > H) {
-        this.y = H - this.r;
-        this.vy = -Math.abs(this.vy);
-        hit = true;
-      }
-
-      if (hit) playBell(180 + this.r * 6 + Math.random() * 120);
+      if (hit) playBell(this.r);
     }
 
-    draw() {
-      drawFace(this.x, this.y, this.r, this.face, Math.sin(this.wobblePhase) * 0.12);
-    }
+    draw() { drawFace(this.x, this.y, this.r, this.face, Math.sin(this.wobblePhase)*0.12); }
   }
 
+  /* ================= MANAGEMENT ================= */
   const faces = [];
 
   function maxFaces() {
-    return Math.floor((canvas.width * canvas.height) / 40000);
+    return Math.floor((canvas.width*canvas.height)/20000); // больше мордочек
   }
 
   function normalizeFaces() {
-    if (faces.length > maxFaces()) {
-      faces.splice(maxFaces());
-    }
+    if (faces.length > maxFaces()) faces.splice(maxFaces());
   }
 
-  /* ============= LOOP ============= */
-  let last = performance.now();
-  function loop(t) {
-    const dt = (t - last) / 1000;
-    last = t;
-
-    ctx.clearRect(0, 0, W, H);
-
-    for (const f of faces) f.step(dt);
-    for (const f of faces) f.draw();
-
-    requestAnimationFrame(loop);
-  }
-  requestAnimationFrame(loop);
-
-  /* ============= INPUT ============= */
   function addFace(x, y) {
     if (faces.length >= maxFaces()) normalizeFaces();
     faces.push(new Face(x, y));
   }
 
-  document.getElementById('click').addEventListener('click', e => {
+  /* ================= LOOP ================= */
+  let last = performance.now();
+  function loop(t) {
+    const dt = (t-last)/1000;
+    last=t;
+
+    ctx.clearRect(0,0,W,H);
+
+    faces.forEach(f=>f.step(dt));
+    faces.forEach(f=>f.draw());
+
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+
+  /* ================= INPUT ================= */
+  const button = document.getElementById('click');
+  button.textContent = 'Кликай!';
+  button.addEventListener('click', e => {
     unlockAudio();
     addFace(canvas.width/2, canvas.height/2);
+    button.style.display = 'none';
   });
 
   canvas.addEventListener('pointerdown', e => {
     unlockAudio();
     addFace(e.offsetX, e.offsetY);
   });
+
 })();
 </script>
+
 
 
 </body>

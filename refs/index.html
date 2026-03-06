@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Андрей Дей — Фас">
+<meta property="og:description" content="Однодневная выставка графики, скульптуры, инсталляции и видео 15 июля 2026, Москва.">
+<meta property="og:image" content="preview-1.png">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Андрей Дей — Фас</title>
+
+<style>
+:root {
+  --bg:#000;
+  --fg:#fff;
+  --border:1px solid #fff;
+}
+
+* { box-sizing:border-box; }
+
+body {
+  margin:0;
+  background:var(--bg);
+  color:var(--fg);
+  font-family: system-ui, -apple-system, "sf pro text", helvetica, arial, sans-serif;
+}
+
+.poster {
+  min-height:100vh;
+  display:grid;
+  grid-template-rows:auto auto auto auto 1fr;
+}
+
+.cell {
+  border-bottom:var(--border);
+  padding:24px 40px;
+  display:flex;
+  align-items:center;
+}
+
+.top {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+}
+
+.top .cell {
+  border-right:var(--border);
+  justify-content:center;
+  font-size:22px;
+  letter-spacing:.12em;
+}
+
+.top .cell:last-child { border-right:none; }
+
+.author {
+  font-size:clamp(36px,5vw,72px);
+}
+
+.title-row {
+  display:grid;
+  grid-template-columns:auto 1fr;
+  min-height:30vh;
+}
+
+.title {
+  justify-content:center;
+  font-size:clamp(72px,12vw,180px);
+  letter-spacing:.15em;
+  border-right:var(--border);
+}
+
+.interactive {
+  position:relative;
+  border-bottom:var(--border);
+  overflow:hidden;
+}
+
+canvas {
+  display:block;
+}
+
+.button-wrap {
+  position:absolute;
+  bottom:20px;
+  right:20px;
+}
+
+button {
+  background:#fff;
+  color:#000;
+  border:none;
+  padding:12px 22px;
+  font-size:18px;
+  cursor:pointer;
+}
+
+.desc {
+  font-size:22px;
+  line-height:1.6;
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:40px;
+}
+
+.bottom {
+  justify-content:center;
+}
+
+a {
+  color:var(--fg);
+  text-decoration:none;
+}
+
+a:hover { text-decoration:underline; }
+
+@media (max-width:900px) {
+  .top { grid-template-columns:1fr; }
+  .title-row { grid-template-columns:1fr; }
+  .title { border-right:none; border-bottom:var(--border); }
+}
+</style>
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><circle cx='8' cy='8' r='8' fill='white'/></svg>">
+</head>
+
+<body>
+
+<div class="poster">
+
+  <div class="top">
+    <div class="cell">Москва · 15 июля 2026</div>
+    <div class="cell">Однодневная выставка</div>
+  </div>
+
+  <div class="cell author">Андрей Дей</div>
+
+  <div class="title-row">
+    <div class="cell title">Фас</div>
+
+    <div class="interactive">
+      <canvas id="faces"></canvas>
+      <div class="button-wrap">
+        <button id="click">Кликни</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="cell desc">
+    <div>
+      Графика<br>
+      Скульптура<br>
+      Инсталляция<br>
+      Видео
+    </div>
+    <div></div>
+  </div>
+
+  <div class="cell bottom">
+    <a href="https://t.me/fas_dei" target="_blank">
+      Анонсы и приглашения в телеграме
+    </a>
+  </div>
+
+</div>
+
+<script>
+(() => {
+  const canvas = document.getElementById('faces');
+  const ctx = canvas.getContext('2d');
+
+  let W, H;
+  function resize() {
+    W = canvas.width = canvas.parentElement.clientWidth;
+    H = canvas.height = canvas.parentElement.clientHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  /* ================= AUDIO ================= */
+  let audioCtx = null;
+  let droneOsc = null;
+  let droneGain = null;
+
+  function unlockAudio() {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      audioCtx.resume();
+
+      // дрон
+      droneOsc = audioCtx.createOscillator();
+      droneGain = audioCtx.createGain();
+
+      droneOsc.type = 'sine';
+      droneOsc.frequency.value = 55; // низкий фундамент
+      droneGain.gain.value = 0.03;
+
+      droneOsc.connect(droneGain);
+      droneGain.connect(audioCtx.destination);
+      droneOsc.start();
+    }
+  }
+
+  function playBell(size) {
+    if (!audioCtx) return;
+    const t = audioCtx.currentTime;
+
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.value = 180 + size*6 + Math.random()*100;
+
+    gain.gain.setValueAtTime(0.01, t);
+    gain.gain.exponentialRampToValueAtTime(0.1, t + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 1);
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc.start(t);
+    osc.stop(t + 1.1);
+  }
+
+  /* ================= FACE ================= */
+  function randomFace() {
+    return {
+      eyeGap: 12 + Math.random()*8,
+      eyeY: -4 + Math.random()*3,
+      eyeR: 2 + Math.random()*3,
+      mouthR: 3 + Math.random()*3
+    };
+  }
+
+  function drawFace(x, y, r, face, wobble) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(wobble);
+
+    // лицо
+    ctx.beginPath();
+    ctx.arc(0, 0, r, 0, Math.PI*2);
+    ctx.fillStyle = '#fff';
+    ctx.fill();
+
+    ctx.fillStyle = '#000';
+
+    // глаза
+    ctx.beginPath();
+    ctx.arc(-face.eyeGap/2, face.eyeY, face.eyeR, 0, Math.PI*2);
+    ctx.arc(face.eyeGap/2, face.eyeY, face.eyeR, 0, Math.PI*2);
+    ctx.fill();
+
+    // рот только кружок
+    ctx.beginPath();
+    ctx.arc(0, 8, face.mouthR, 0, Math.PI*2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  /* ================= PHYSICS ================= */
+  class Face {
+    constructor(x, y) {
+      this.r = 12 + Math.random()*12; // уменьшенные размеры
+      this.x = x;
+      this.y = y;
+      const speed = 20 + Math.random()*60;
+      const a = Math.random()*Math.PI*2;
+      this.vx = Math.cos(a)*speed;
+      this.vy = Math.sin(a)*speed;
+      this.face = randomFace();
+      this.wobblePhase = Math.random()*Math.PI*2;
+    }
+
+    step(dt) {
+      this.x += this.vx*dt;
+      this.y += this.vy*dt;
+      this.wobblePhase += dt*0.6;
+
+      let hit = false;
+      if (this.x - this.r < 0) { this.x=this.r; this.vx=Math.abs(this.vx); hit=true; }
+      if (this.x + this.r > W) { this.x=W-this.r; this.vx=-Math.abs(this.vx); hit=true; }
+      if (this.y - this.r < 0) { this.y=this.r; this.vy=Math.abs(this.vy); hit=true; }
+      if (this.y + this.r > H) { this.y=H-this.r; this.vy=-Math.abs(this.vy); hit=true; }
+
+      if (hit) playBell(this.r);
+    }
+
+    draw() { drawFace(this.x, this.y, this.r, this.face, Math.sin(this.wobblePhase)*0.12); }
+  }
+
+  /* ================= MANAGEMENT ================= */
+  const faces = [];
+
+  function maxFaces() {
+    return Math.floor((canvas.width*canvas.height)/20000); // больше мордочек
+  }
+
+  function normalizeFaces() {
+    if (faces.length > maxFaces()) faces.splice(maxFaces());
+  }
+
+  function addFace(x, y) {
+    if (faces.length >= maxFaces()) normalizeFaces();
+    faces.push(new Face(x, y));
+  }
+
+  /* ================= LOOP ================= */
+  let last = performance.now();
+  function loop(t) {
+    const dt = (t-last)/1000;
+    last=t;
+
+    ctx.clearRect(0,0,W,H);
+
+    faces.forEach(f=>f.step(dt));
+    faces.forEach(f=>f.draw());
+
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+
+  /* ================= INPUT ================= */
+  const button = document.getElementById('click');
+  button.textContent = 'Кликай!';
+  button.addEventListener('click', e => {
+    unlockAudio();
+    addFace(canvas.width/2, canvas.height/2);
+    button.style.display = 'none';
+  });
+
+  canvas.addEventListener('pointerdown', e => {
+    unlockAudio();
+    addFace(e.offsetX, e.offsetY);
+  });
+
+})();
+</script>
+
+
+
+</body>
+</html>

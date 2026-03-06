@@ -14,44 +14,24 @@ padding:0;
 background:white;
 font-family:Helvetica, Arial, sans-serif;
 height:100%;
+}
+
+/* стартовый экран */
+
+#startScreen{
+position:fixed;
+inset:0;
 display:flex;
 justify-content:center;
 align-items:center;
+background:white;
+z-index:10;
+transition:opacity 1.5s;
 }
 
-/* layout */
-
-.wrapper{
-width:90vw;
-max-width:1200px;
-display:grid;
-grid-template-columns:1fr 120px;
-grid-template-rows:auto auto;
-gap:40px;
-align-items:center;
-}
-
-/* video */
-
-video{
-width:100%;
-max-width:800px;
-aspect-ratio:16/9;
-background:black;
-}
-
-/* text */
-
-.caption{
-font-size:18px;
-line-height:1.5;
-text-align:left;
-}
-
-/* play button */
+/* кнопка пуск */
 
 #playButton{
-position:absolute;
 width:120px;
 height:120px;
 border-radius:60px;
@@ -62,18 +42,54 @@ animation:pulse 2s infinite;
 
 @keyframes pulse{
 0%{transform:scale(1);opacity:1}
-50%{transform:scale(1.08);opacity:.85}
+50%{transform:scale(1.08);opacity:.8}
 100%{transform:scale(1);opacity:1}
 }
 
-/* next link */
+/* основной блок */
+
+.wrapper{
+width:90vw;
+max-width:900px;
+margin:auto;
+padding-top:8vh;
+opacity:0;
+transition:opacity 3s;
+}
+
+/* видео */
+
+video{
+width:100%;
+background:black;
+aspect-ratio:16/9;
+}
+
+/* нижний ряд */
+
+.bottomRow{
+display:flex;
+justify-content:space-between;
+align-items:flex-start;
+margin-top:25px;
+}
+
+/* текст */
+
+.caption{
+font-size:18px;
+line-height:1.5;
+text-align:left;
+}
+
+/* ссылка круг */
 
 .next{
-width:120px;
-height:120px;
-border-radius:60px;
+width:70px;
+height:70px;
+border-radius:35px;
 background:black;
-animation:pulse 2.5s infinite;
+animation:pulse 2.4s infinite;
 }
 
 .next a{
@@ -87,13 +103,15 @@ height:100%;
 
 <body>
 
-<div class="wrapper">
+<div id="startScreen">
+<div id="playButton"></div>
+</div>
+
+<div class="wrapper" id="content">
 
 <video id="videoPlayer" playsinline></video>
 
-<div class="next">
-<a href="https://fas.indexmod.xyz/"></a>
-</div>
+<div class="bottomRow">
 
 <div class="caption">
 LIVE STREAM<br>
@@ -102,9 +120,13 @@ INDEPENDENT SIGNAL<br>
 INDEXMOD
 </div>
 
+<div class="next">
+<a href="https://fas.indexmod.xyz/"></a>
 </div>
 
-<div id="playButton"></div>
+</div>
+
+</div>
 
 <audio id="audioPlayer"></audio>
 
@@ -115,13 +137,20 @@ INDEXMOD
 const video=document.getElementById('videoPlayer')
 const audio=document.getElementById('audioPlayer')
 const playButton=document.getElementById('playButton')
+const startScreen=document.getElementById('startScreen')
+const content=document.getElementById('content')
 
 const VIDEO_HLS="/video/video.m3u8"
 const AUDIO_HLS="/audio/audio.m3u8"
 
 playButton.onclick=()=>{
 
-playButton.style.display="none"
+startScreen.style.opacity=0
+
+setTimeout(()=>{
+startScreen.style.display="none"
+content.style.opacity=1
+},1200)
 
 if(Hls.isSupported()){
 

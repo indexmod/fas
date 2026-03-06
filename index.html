@@ -1,10 +1,46 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>LIVE</title>
+<title>FAS — live stream</title>
+
+<meta name="description" content="Looping audio and video live stream. Independent signal.">
+
+<link rel="canonical" href="https://fas.indexmod.xyz/">
+
+<!-- Open Graph -->
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="FAS — looping live stream">
+<meta property="og:description" content="Independent looping audio and video stream.">
+<meta property="og:url" content="https://fas.indexmod.xyz/">
+<meta property="og:image" content="https://fas.indexmod.xyz/preview.png">
+
+<!-- Twitter -->
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="FAS — looping live stream">
+<meta name="twitter:description" content="Independent looping audio and video stream.">
+<meta name="twitter:image" content="https://fas.indexmod.xyz/preview.png">
+
+<meta name="theme-color" content="#ffffff">
+
+<!-- favicon SVG -->
+
+<link rel="icon" type="image/svg+xml"
+href='data:image/svg+xml,
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+<circle cx="50" cy="50" r="45" fill="white"/>
+</svg>'>
+
+<!-- preload HLS -->
+
+<link rel="preload" href="/video/video.m3u8" as="fetch" crossorigin>
+<link rel="preload" href="/audio/audio.m3u8" as="fetch" crossorigin>
 
 <style>
 
@@ -29,7 +65,7 @@ z-index:10;
 transition:opacity 1.5s;
 }
 
-/* кнопка пуск */
+/* кнопка */
 
 #playButton{
 width:120px;
@@ -65,7 +101,7 @@ background:black;
 aspect-ratio:16/9;
 }
 
-/* нижний ряд */
+/* нижняя строка */
 
 .bottomRow{
 display:flex;
@@ -99,6 +135,7 @@ height:100%;
 }
 
 </style>
+
 </head>
 
 <body>

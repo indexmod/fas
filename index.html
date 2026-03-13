@@ -151,7 +151,10 @@ const playButton=document.getElementById('playButton')
 const startScreen=document.getElementById('startScreen')
 const content=document.getElementById('content')
 
-const VIDEO_HLS="https://pub-581ad16b881c4c508b223afe7425cecd.r2.dev/video.m3u8"
+/* 🔥 ИЗМЕНЕНО ТОЛЬКО ВИДЕО */
+const VIDEO_HLS="https://worker.chorus-live.workers.dev/video.m3u8"
+
+/* АУДИО БЕЗ ИЗМЕНЕНИЙ */
 const AUDIO_HLS="/audio/audio.m3u8"
 
 let hlsVideo
@@ -174,7 +177,6 @@ hlsVideo.attachMedia(video)
 hlsVideo.on(Hls.Events.MANIFEST_PARSED,()=>{
 
 video.play()
-
 video.addEventListener("timeupdate",handleRandomMontage)
 
 })
@@ -213,9 +215,7 @@ if(!video.duration) return
 
 const windowSize=8
 const maxStart=Math.max(video.duration-windowSize,0)
-const randomTime=Math.random()*maxStart
-
-video.currentTime=randomTime
+video.currentTime=Math.random()*maxStart
 
 }
 

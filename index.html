@@ -126,10 +126,11 @@ height:100%;
 <div class="bottomRow">
 
 <div class="caption">
-LIVE STREAM<br>
-LOOPING AUDIO<br>
-INDEPENDENT SIGNAL<br>
-INDEXMOD
+Работа (без названия, не окончена) из серии «24 Хор».<br>
+Материал — фанера, чёрный и красный маркер.<br>
+Размеры: 120 × 60.<br>
+Автор Андр-о-Дей.<br>
+2026, март.
 </div>
 
 <div class="next">
@@ -153,6 +154,60 @@ const content=document.getElementById('content')
 const VIDEO_HLS="https://pub-581ad16b881c4c508b223afe7425cecd.r2.dev/video.m3u8"
 const AUDIO_HLS="/audio/audio.m3u8"
 
+let hlsVideo
+let hlsAudio
+
+function initVideo(){
+
+if(hlsVideo){
+hlsVideo.destroy()
+}
+
+hlsVideo=new Hls({
+autoStartLoad:true,
+maxBufferLength:10
+})
+
+hlsVideo.loadSource(VIDEO_HLS)
+hlsVideo.attachMedia(video)
+
+hlsVideo.on(Hls.Events.MANIFEST_PARSED,()=>{
+video.play()
+})
+
+hlsVideo.on(Hls.Events.ERROR,(event,data)=>{
+if(data.fatal){
+if(data.type===Hls.ErrorTypes.NETWORK_ERROR){
+hlsVideo.startLoad()
+}else{
+initVideo()
+}
+}
+})
+
+video.loop=true
+
+}
+
+function initAudio(){
+
+if(hlsAudio){
+hlsAudio.destroy()
+}
+
+hlsAudio=new Hls()
+
+hlsAudio.loadSource(AUDIO_HLS)
+hlsAudio.attachMedia(audio)
+
+hlsAudio.on(Hls.Events.MANIFEST_PARSED,()=>{
+audio.play()
+})
+
+audio.loop=true
+
+}
+
 playButton.onclick=()=>{
 
 startScreen.style.opacity=0
@@ -163,27 +218,14 @@ content.style.opacity=1
 },1200)
 
 if(Hls.isSupported()){
-
-const hlsVideo=new Hls()
-hlsVideo.loadSource(VIDEO_HLS)
-hlsVideo.attachMedia(video)
-hlsVideo.on(Hls.Events.MANIFEST_PARSED,()=>video.play())
-
-const hlsAudio=new Hls()
-hlsAudio.loadSource(AUDIO_HLS)
-hlsAudio.attachMedia(audio)
-hlsAudio.on(Hls.Events.MANIFEST_PARSED,()=>audio.play())
-
+initVideo()
+initAudio()
 }else{
-
 video.src=VIDEO_HLS
 audio.src=AUDIO_HLS
 video.play()
 audio.play()
-
 }
-
-audio.loop=true
 
 }
 

@@ -165,27 +165,57 @@ hlsVideo.destroy()
 
 hlsVideo=new Hls({
 autoStartLoad:true,
-maxBufferLength:10
+maxBufferLength:20
 })
 
 hlsVideo.loadSource(VIDEO_HLS)
 hlsVideo.attachMedia(video)
 
 hlsVideo.on(Hls.Events.MANIFEST_PARSED,()=>{
+
 video.play()
+
+video.addEventListener("timeupdate",handleRandomMontage)
+
 })
 
 hlsVideo.on(Hls.Events.ERROR,(event,data)=>{
+
 if(data.fatal){
+
 if(data.type===Hls.ErrorTypes.NETWORK_ERROR){
 hlsVideo.startLoad()
 }else{
 initVideo()
 }
+
 }
+
 })
 
 video.loop=true
+
+}
+
+function handleRandomMontage(){
+
+if(!video.duration || isNaN(video.duration)) return
+
+if(video.currentTime > video.duration - 1){
+randomJump()
+}
+
+}
+
+function randomJump(){
+
+if(!video.duration) return
+
+const windowSize=8
+const maxStart=Math.max(video.duration-windowSize,0)
+const randomTime=Math.random()*maxStart
+
+video.currentTime=randomTime
 
 }
 

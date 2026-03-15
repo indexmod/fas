@@ -10,21 +10,6 @@
 
 <meta name="description" content="Looping audio and video live stream. Independent signal.">
 
-<link rel="canonical" href="https://fas.indexmod.xyz/">
-
-<meta property="og:type" content="website">
-<meta property="og:title" content="FAS — looping live stream">
-<meta property="og:description" content="Independent looping audio and video stream.">
-<meta property="og:url" content="https://fas.indexmod.xyz/">
-<meta property="og:image" content="https://fas.indexmod.xyz/preview.png">
-
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="FAS — looping live stream">
-<meta name="twitter:description" content="Independent looping audio and video stream.">
-<meta name="twitter:image" content="https://fas.indexmod.xyz/preview.png">
-
-<meta name="theme-color" content="#ffffff">
-
 <link rel="preload" href="/audio/audio.m3u8" as="fetch" crossorigin>
 <link rel="preload" href="/video/video.m3u8" as="fetch" crossorigin>
 
@@ -37,6 +22,8 @@ background:white;
 font-family:Helvetica, Arial, sans-serif;
 height:100%;
 }
+
+/* старт */
 
 #startScreen{
 position:fixed;
@@ -59,10 +46,12 @@ animation:pulse 2s infinite;
 }
 
 @keyframes pulse{
-0%{transform:scale(1);opacity:1}
-50%{transform:scale(1.08);opacity:.8}
-100%{transform:scale(1);opacity:1}
+0%{transform:scale(1)}
+50%{transform:scale(1.08)}
+100%{transform:scale(1)}
 }
+
+/* layout */
 
 .wrapper{
 width:90vw;
@@ -98,13 +87,10 @@ display:flex;
 height:100%;
 }
 
-.frame{
-flex:0 0 auto;
+.thumb{
+width:60px;
 height:100%;
-}
-
-.frame img{
-height:100%;
+object-fit:cover;
 }
 
 #playhead{
@@ -116,15 +102,19 @@ background:red;
 pointer-events:none;
 }
 
+/* bottom */
+
 .bottomRow{
+width:80%;
+margin:20px auto 0 auto;
 display:flex;
 justify-content:space-between;
 align-items:flex-start;
-margin-top:25px;
 }
 
 .caption{
-font-size:18px;
+width:50%;
+font-size:14px;
 line-height:1.5;
 }
 
@@ -164,14 +154,17 @@ height:100%;
 
 <div class="bottomRow">
 
-  <div class="caption">
-  Работа (без названия, не окончена) из серии «24 Хор».<br>
-  Материал — фанера, чёрный и красный маркер.<br>
-  Размеры: 120 × 60.<br>
-  Автор Андр-о-Дей.<br>
-  2026, март.<br><br>
-  Музыка: группа «Молчат дома» — «Судно».
-  </div>
+<div class="caption">
+
+Работа (без названия, не окончена) из серии «24 Хор».<br>
+Материал — фанера, чёрный и красный маркер.<br>
+Размеры: 120 × 60.<br>
+Автор Андр-о-Дей.<br>
+2026, март.<br><br>
+
+Музыка: Molchat Doma — “Sudno (Boris Ryzhy)”.
+
+</div>
 
 <div class="next">
 <a href="https://fas.indexmod.xyz/"></a>
@@ -202,14 +195,13 @@ const AUDIO_HLS="/audio/audio.m3u8"
 let hlsVideo
 let hlsAudio
 
+/* video */
+
 function initVideo(){
 
 if(hlsVideo) hlsVideo.destroy()
 
-hlsVideo=new Hls({
-autoStartLoad:true,
-maxBufferLength:20
-})
+hlsVideo=new Hls()
 
 hlsVideo.loadSource(VIDEO_HLS)
 hlsVideo.attachMedia(video)
@@ -217,14 +209,19 @@ hlsVideo.attachMedia(video)
 hlsVideo.on(Hls.Events.MANIFEST_PARSED,()=>{
 
 video.play()
-generateFrames()
+
+video.addEventListener("loadedmetadata",()=>{
 updatePlayhead()
+generateThumbnails()
+})
 
 })
 
 video.loop=true
 
 }
+
+/* audio */
 
 function initAudio(){
 
@@ -243,47 +240,14 @@ audio.loop=true
 
 }
 
-function generateFrames(){
-
-const count=40
-
-for(let i=0;i<count;i++){
-
-const canvas=document.createElement("canvas")
-canvas.width=160
-canvas.height=90
-
-const ctx=canvas.getContext("2d")
-
-const img=document.createElement("img")
-img.className="frame"
-
-const t=(video.duration/count)*i
-
-video.currentTime=t
-
-video.onseeked=()=>{
-
-ctx.drawImage(video,0,0,160,90)
-
-img.src=canvas.toDataURL()
-
-frames.appendChild(img)
-
-}
-
-}
-
-video.currentTime=0
-
-}
+/* playhead */
 
 function updatePlayhead(){
 
 if(video.duration){
 
 const progress=video.currentTime/video.duration
-playhead.style.left=(progress*timeline.offsetWidth)+"px"
+playhead.style.left=(progress*100)+"%"
 
 }
 
@@ -291,17 +255,63 @@ requestAnimationFrame(updatePlayhead)
 
 }
 
+/* click timeline */
+
 timeline.onclick=(e)=>{
 
 const rect=timeline.getBoundingClientRect()
 const x=e.clientX-rect.left
 const ratio=x/rect.width
 
-video.pause()
 video.currentTime=video.duration*ratio
-video.play()
 
 }
+
+/* thumbnails */
+
+function generateThumbnails(){
+
+const count=20
+const canvas=document.createElement("canvas")
+const ctx=canvas.getContext("2d")
+
+canvas.width=160
+canvas.height=90
+
+let i=0
+
+function capture(){
+
+if(i>=count){
+video.currentTime=0
+return
+}
+
+const t=(video.duration/count)*i
+video.currentTime=t
+
+video.onseeked=()=>{
+
+ctx.drawImage(video,0,0,160,90)
+
+const img=document.createElement("img")
+img.className="thumb"
+img.src=canvas.toDataURL()
+
+frames.appendChild(img)
+
+i++
+capture()
+
+}
+
+}
+
+capture()
+
+}
+
+/* start */
 
 playButton.onclick=()=>{
 

@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>ФАС</title>
+<title>FAS — live stream</title>
 
 <link rel="icon" type="image/svg+xml"
 href='data:image/svg+xml,
@@ -28,36 +28,46 @@ align-items:center;
 font-family:Helvetica, Arial, sans-serif;
 }
 
-/* VIDEO */
+/* VIDEO WRAPPER */
+
+.videoWrapper{
+position:relative;
+width:37.5vw;   /* +25% от 30vw */
+max-width:750px;
+}
 
 video{
-width:30vw;
-max-width:600px;
+width:100%;
 aspect-ratio:16/9;
 background:black;
+display:block;
+}
+
+/* BLACK BUTTON */
+
+.linkButton{
+position:absolute;
+right:-100px;
+top:50%;
+transform:translateY(-50%);
+width:80px;
+height:80px;
+border-radius:50%;
+background:black;
+cursor:pointer;
 }
 
 /* CREDITS */
 
 .credits{
-width:30vw;
-max-width:600px;
-margin-top:15px;
-font-size:14px;
-line-height:1.5;
-text-align:left;
-}
-
-/* LINK BUTTON */
-
-.linkButton{
-width:80px;
-height:80px;
-border-radius:50%;
-margin-top:25px;
-background:linear-gradient(135deg, red 50%, black 50%);
-cursor:pointer;
-display:block;
+width:37.5vw;
+max-width:750px;
+margin-top:12px;
+font-size:13px;
+line-height:1.4;
+white-space:nowrap;
+overflow:hidden;
+text-overflow:ellipsis;
 }
 
 /* START SCREEN */
@@ -97,22 +107,18 @@ animation:pulse 2s infinite;
 <div id="playButton"></div>
 </div>
 
+<div class="videoWrapper">
+
 <video id="videoPlayer" playsinline autoplay loop></video>
-<audio id="audioPlayer" loop></audio>
-
-<div class="credits">
-
-Работа (без названия, не окончена) из серии «24 Хор».<br>
-Материал — фанера, чёрный и красный маркер.<br>
-Размеры: 120 × 60.<br>
-Автор Андр-о-Дей.<br>
-2026, март.<br><br>
-
-Музыка: Molchat Doma — “Sudno (Boris Ryzhy)”.
+<a href="https://fas.indexmod.xyz/" class="linkButton"></a>
 
 </div>
 
-<a href="https://fas.indexmod.xyz/" class="linkButton"></a>
+<div class="credits">
+Работа (без названия, не окончена) из серии «24 Хор». Материал — фанера, чёрный и красный маркер. 120×60. Андр-о-Дей. 2026, март. Музыка: Molchat Doma — “Sudno (Boris Ryzhy)”.
+</div>
+
+<audio id="audioPlayer" loop></audio>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 

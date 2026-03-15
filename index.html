@@ -25,9 +25,11 @@ display:flex;
 justify-content:center;
 }
 
+/* MAIN LAYOUT */
+
 .page{
-width:43vw;   /* видео +15% */
-max-width:850px;
+width:43vw;
+max-width:900px;
 margin-top:8vh;
 }
 
@@ -49,7 +51,7 @@ align-items:flex-start;
 margin-top:12px;
 }
 
-/* COMPACT MODULE */
+/* TEXT MODULE */
 
 .credits{
 font-size:12px;
@@ -57,7 +59,7 @@ line-height:1.35;
 max-width:75%;
 }
 
-/* BLACK CIRCLE */
+/* BLACK BUTTON WITH PULSE */
 
 .linkButton{
 width:70px;
@@ -66,6 +68,13 @@ border-radius:50%;
 background:black;
 display:block;
 flex-shrink:0;
+animation:pulse 2s infinite;
+}
+
+@keyframes pulse{
+0%{transform:scale(1)}
+50%{transform:scale(1.1)}
+100%{transform:scale(1)}
 }
 
 /* START SCREEN */
@@ -90,10 +99,32 @@ cursor:pointer;
 animation:pulse 2s infinite;
 }
 
-@keyframes pulse{
-0%{transform:scale(1)}
-50%{transform:scale(1.08)}
-100%{transform:scale(1)}
+/* RESPONSIVE */
+
+@media (max-width:900px){
+
+.page{
+width:70vw;
+}
+
+}
+
+@media (max-width:600px){
+
+.page{
+width:90vw;
+}
+
+.credits{
+font-size:11px;
+max-width:70%;
+}
+
+.linkButton{
+width:60px;
+height:60px;
+}
+
 }
 
 </style>

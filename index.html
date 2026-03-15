@@ -19,22 +19,19 @@ href='data:image/svg+xml,
 html,body{
 margin:0;
 padding:0;
-height:100%;
 background:white;
-display:flex;
-flex-direction:column;
-justify-content:center;
-align-items:center;
 font-family:Helvetica, Arial, sans-serif;
+display:flex;
+justify-content:center;
 }
 
-/* VIDEO WRAPPER */
-
-.videoWrapper{
-position:relative;
-width:37.5vw;   /* +25% от 30vw */
-max-width:750px;
+.page{
+width:43vw;   /* видео +15% */
+max-width:850px;
+margin-top:8vh;
 }
+
+/* VIDEO */
 
 video{
 width:100%;
@@ -43,31 +40,32 @@ background:black;
 display:block;
 }
 
-/* BLACK BUTTON */
+/* BOTTOM ROW */
 
-.linkButton{
-position:absolute;
-right:-100px;
-top:50%;
-transform:translateY(-50%);
-width:80px;
-height:80px;
-border-radius:50%;
-background:black;
-cursor:pointer;
+.bottomRow{
+display:flex;
+justify-content:space-between;
+align-items:flex-start;
+margin-top:12px;
 }
 
-/* CREDITS */
+/* COMPACT MODULE */
 
 .credits{
-width:37.5vw;
-max-width:750px;
-margin-top:12px;
-font-size:13px;
-line-height:1.4;
-white-space:nowrap;
-overflow:hidden;
-text-overflow:ellipsis;
+font-size:12px;
+line-height:1.35;
+max-width:75%;
+}
+
+/* BLACK CIRCLE */
+
+.linkButton{
+width:70px;
+height:70px;
+border-radius:50%;
+background:black;
+display:block;
+flex-shrink:0;
 }
 
 /* START SCREEN */
@@ -107,15 +105,20 @@ animation:pulse 2s infinite;
 <div id="playButton"></div>
 </div>
 
-<div class="videoWrapper">
+<div class="page">
 
 <video id="videoPlayer" playsinline autoplay loop></video>
+
+<div class="bottomRow">
+
+<div class="credits">
+Работа (без названия, не окончена) из серии «24 Хор». Материал — фанера, чёрный и красный маркер. 120×60. Андр-о-Дей. 2026, март. Музыка: Molchat Doma — “Sudno (Boris Ryzhy)”.
+</div>
+
 <a href="https://fas.indexmod.xyz/" class="linkButton"></a>
 
 </div>
 
-<div class="credits">
-Работа (без названия, не окончена) из серии «24 Хор». Материал — фанера, чёрный и красный маркер. 120×60. Андр-о-Дей. 2026, март. Музыка: Molchat Doma — “Sudno (Boris Ryzhy)”.
 </div>
 
 <audio id="audioPlayer" loop></audio>
@@ -135,15 +138,11 @@ const AUDIO_SRC="/audio/audio.m3u8"
 function initVideo(){
 
 if(Hls.isSupported()){
-
 const hlsVideo=new Hls()
 hlsVideo.loadSource(VIDEO_SRC)
 hlsVideo.attachMedia(video)
-
 }else{
-
 video.src=VIDEO_SRC
-
 }
 
 video.loop=true
@@ -154,15 +153,11 @@ video.play()
 function initAudio(){
 
 if(Hls.isSupported()){
-
 const hlsAudio=new Hls()
 hlsAudio.loadSource(AUDIO_SRC)
 hlsAudio.attachMedia(audio)
-
 }else{
-
 audio.src=AUDIO_SRC
-
 }
 
 audio.loop=true

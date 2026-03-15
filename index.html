@@ -25,15 +25,11 @@
 
 <meta name="theme-color" content="#ffffff">
 
-<link rel="icon" type="image/svg+xml"
-href='data:image/svg+xml,
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-<circle cx="50" cy="50" r="45" fill="white"/>
-</svg>'>
-
 <link rel="preload" href="/audio/audio.m3u8" as="fetch" crossorigin>
+<link rel="preload" href="/video/video.m3u8" as="fetch" crossorigin>
 
 <style>
+
 html,body{
 margin:0;
 padding:0;
@@ -78,9 +74,46 @@ transition:opacity 3s;
 }
 
 video{
-width:100%;
+width:80%;
+display:block;
+margin:auto;
 background:black;
 aspect-ratio:16/9;
+}
+
+/* timeline */
+
+#timeline{
+position:relative;
+width:80%;
+height:50px;
+margin:15px auto 0 auto;
+background:#eee;
+overflow:hidden;
+cursor:pointer;
+}
+
+#frames{
+display:flex;
+height:100%;
+}
+
+.frame{
+flex:0 0 auto;
+height:100%;
+}
+
+.frame img{
+height:100%;
+}
+
+#playhead{
+position:absolute;
+top:0;
+width:2px;
+height:100%;
+background:red;
+pointer-events:none;
 }
 
 .bottomRow{
@@ -108,6 +141,7 @@ display:block;
 width:100%;
 height:100%;
 }
+
 </style>
 
 </head>
@@ -123,15 +157,21 @@ height:100%;
 <video id="videoPlayer" playsinline></video>
 <audio id="audioPlayer"></audio>
 
+<div id="timeline">
+<div id="frames"></div>
+<div id="playhead"></div>
+</div>
+
 <div class="bottomRow">
 
-<div class="caption">
-Работа (без названия, не окончена) из серии «24 Хор».<br>
-Материал — фанера, чёрный и красный маркер.<br>
-Размеры: 120 × 60.<br>
-Автор Андр-о-Дей.<br>
-2026, март.
-</div>
+  <div class="caption">
+  Работа (без названия, не окончена) из серии «24 Хор».<br>
+  Материал — фанера, чёрный и красный маркер.<br>
+  Размеры: 120 × 60.<br>
+  Автор Андр-о-Дей.<br>
+  2026, март.<br><br>
+  Музыка: группа «Молчат дома» — «Судно».
+  </div>
 
 <div class="next">
 <a href="https://fas.indexmod.xyz/"></a>
@@ -147,14 +187,16 @@ height:100%;
 
 const video=document.getElementById('videoPlayer')
 const audio=document.getElementById('audioPlayer')
+
 const playButton=document.getElementById('playButton')
 const startScreen=document.getElementById('startScreen')
 const content=document.getElementById('content')
 
-/* 🔥 ИЗМЕНЕНО ТОЛЬКО ВИДЕО */
-const VIDEO_HLS="https://worker.chorus-live.workers.dev/video.m3u8"
+const timeline=document.getElementById('timeline')
+const frames=document.getElementById('frames')
+const playhead=document.getElementById('playhead')
 
-/* АУДИО БЕЗ ИЗМЕНЕНИЙ */
+const VIDEO_HLS="/video/video.m3u8"
 const AUDIO_HLS="/audio/audio.m3u8"
 
 let hlsVideo
@@ -162,9 +204,7 @@ let hlsAudio
 
 function initVideo(){
 
-if(hlsVideo){
-hlsVideo.destroy()
-}
+if(hlsVideo) hlsVideo.destroy()
 
 hlsVideo=new Hls({
 autoStartLoad:true,
@@ -177,21 +217,8 @@ hlsVideo.attachMedia(video)
 hlsVideo.on(Hls.Events.MANIFEST_PARSED,()=>{
 
 video.play()
-video.addEventListener("timeupdate",handleRandomMontage)
-
-})
-
-hlsVideo.on(Hls.Events.ERROR,(event,data)=>{
-
-if(data.fatal){
-
-if(data.type===Hls.ErrorTypes.NETWORK_ERROR){
-hlsVideo.startLoad()
-}else{
-initVideo()
-}
-
-}
+generateFrames()
+updatePlayhead()
 
 })
 
@@ -199,31 +226,9 @@ video.loop=true
 
 }
 
-function handleRandomMontage(){
-
-if(!video.duration || isNaN(video.duration)) return
-
-if(video.currentTime > video.duration - 1){
-randomJump()
-}
-
-}
-
-function randomJump(){
-
-if(!video.duration) return
-
-const windowSize=8
-const maxStart=Math.max(video.duration-windowSize,0)
-video.currentTime=Math.random()*maxStart
-
-}
-
 function initAudio(){
 
-if(hlsAudio){
-hlsAudio.destroy()
-}
+if(hlsAudio) hlsAudio.destroy()
 
 hlsAudio=new Hls()
 
@@ -238,6 +243,66 @@ audio.loop=true
 
 }
 
+function generateFrames(){
+
+const count=40
+
+for(let i=0;i<count;i++){
+
+const canvas=document.createElement("canvas")
+canvas.width=160
+canvas.height=90
+
+const ctx=canvas.getContext("2d")
+
+const img=document.createElement("img")
+img.className="frame"
+
+const t=(video.duration/count)*i
+
+video.currentTime=t
+
+video.onseeked=()=>{
+
+ctx.drawImage(video,0,0,160,90)
+
+img.src=canvas.toDataURL()
+
+frames.appendChild(img)
+
+}
+
+}
+
+video.currentTime=0
+
+}
+
+function updatePlayhead(){
+
+if(video.duration){
+
+const progress=video.currentTime/video.duration
+playhead.style.left=(progress*timeline.offsetWidth)+"px"
+
+}
+
+requestAnimationFrame(updatePlayhead)
+
+}
+
+timeline.onclick=(e)=>{
+
+const rect=timeline.getBoundingClientRect()
+const x=e.clientX-rect.left
+const ratio=x/rect.width
+
+video.pause()
+video.currentTime=video.duration*ratio
+video.play()
+
+}
+
 playButton.onclick=()=>{
 
 startScreen.style.opacity=0
@@ -248,13 +313,18 @@ content.style.opacity=1
 },1200)
 
 if(Hls.isSupported()){
+
 initVideo()
 initAudio()
+
 }else{
+
 video.src=VIDEO_HLS
 audio.src=AUDIO_HLS
+
 video.play()
 audio.play()
+
 }
 
 }

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>Gradient Sphere</title>
+
+<style>
+
+html,
+body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#000;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.circle{
+    position:relative;
+    width:400px;
+    height:400px;
+    border-radius:50%;
+
+    background:
+    radial-gradient(circle at center,
+        rgba(255,255,255,.9) 0%,
+        rgba(255,100,255,.5) 30%,
+        rgba(0,255,255,.2) 60%,
+        transparent 100%);
+
+    box-shadow:
+        0 0 100px 40px rgba(255,0,255,.4),
+        0 0 160px 100px rgba(0,255,255,.3),
+        0 0 250px 180px rgba(255,255,0,.2);
+
+    filter:url(#colorShift);
+
+    animation:pulse 6s ease-in-out infinite alternate;
+}
+
+@keyframes pulse{
+
+    from{
+        transform:scale(1);
+    }
+
+    to{
+        transform:scale(1.05);
+    }
+
+}
+
+svg{
+    position:absolute;
+    width:0;
+    height:0;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="circle"></div>
+
+<svg>
+
+<filter id="colorShift">
+
+<feColorMatrix
+in="SourceGraphic"
+type="matrix"
+values="1 0 0 0 0
+        0 1 0 0 0
+        0 0 1 0 0
+        0 0 0 1 0"/>
+
+</filter>
+
+</svg>
+
+<script>
+
+const matrix=document.querySelector("feColorMatrix");
+
+let audioCtx;
+let oscillator;
+let gainNode;
+
+let started=false;
+
+function initAudio(){
+
+    if(audioCtx) return;
+
+    audioCtx=new(
+        window.AudioContext||
+        window.webkitAudioContext
+    )();
+
+    oscillator=audioCtx.createOscillator();
+    gainNode=audioCtx.createGain();
+
+    oscillator.type="sine";
+    oscillator.frequency.value=220;
+
+    gainNode.gain.value=.05;
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    oscillator.start();
+
+}
+
+let currentValues=[];
+let targetValues=[];
+
+function initMatrix(){
+
+    const values=[];
+
+    for(let r=0;r<3;r++){
+
+        for(let c=0;c<5;c++){
+
+            values.push(c===r?1:0);
+
+        }
+
+    }
+
+    values.push(0,0,0,1,0);
+
+    currentValues=[...values];
+    targetValues=[...values];
+
+    matrix.setAttribute(
+        "values",
+        values.join(" ")
+    );
+
+}
+
+initMatrix();
+
+function generateTarget(){
+
+    const values=[];
+
+    for(let r=0;r<3;r++){
+
+        for(let c=0;c<5;c++){
+
+            if(c===r){
+
+                values.push(
+                    1+Math.random()*0.5
+                );
+
+            }else{
+
+                values.push(
+                    (Math.random()*1.2-.6).toFixed(2)
+                );
+
+            }
+
+        }
+
+    }
+
+    values.push(0,0,0,1,0);
+
+    targetValues=values.map(Number);
+
+    if(oscillator){
+
+        const intensity=
+            targetValues
+            .slice(0,15)
+            .reduce((a,b)=>a+Math.abs(b),0);
+
+        oscillator.frequency.linearRampToValueAtTime(
+
+            150+intensity*40,
+
+            audioCtx.currentTime+1.5
+
+        );
+
+    }
+
+}
+
+function smoothTransition(){
+
+    currentValues=currentValues.map(
+
+        (v,i)=>v+(targetValues[i]-v)*0.05
+
+    );
+
+    matrix.setAttribute(
+
+        "values",
+
+        currentValues.join(" ")
+
+    );
+
+    requestAnimationFrame(
+
+        smoothTransition
+
+    );
+
+}
+
+smoothTransition();
+
+setInterval(
+
+    generateTarget,
+
+    3000
+
+);
+
+async function startArtwork(){
+
+    if(started) return;
+
+    started=true;
+
+    initAudio();
+
+    try{
+
+        await audioCtx.resume();
+
+    }catch(e){}
+
+}
+
+window.addEventListener("message",(e)=>{
+
+    if(e.data==="START"){
+
+        startArtwork();
+
+    }
+
+});
+
+</script>
+
+</body>
+</html>

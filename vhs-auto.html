@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>VHS Vibrating Circle with Auto Drone</title>
+<style>
+:root{--size:500px;}
+html,body{height:100%;margin:0;background:#000;display:flex;align-items:center;justify-content:center;font-family:monospace;color:#0f0;overflow:hidden;flex-direction:column}
+.time-display{position:absolute;top:10px;left:10px;font-size:18px;letter-spacing:2px;text-shadow:0 0 3px #0f0,0 0 5px #0f0}
+.dot{width:var(--size);height:var(--size);background:#fff;border-radius:50%;box-shadow:0 0 20px 8px rgba(0,0,255,.8);will-change:transform;position:relative;filter:contrast(1.3) brightness(1.2);overflow:hidden;animation:flicker .15s infinite alternate;margin-top:50px}
+.dot:before{content:'';position:absolute;inset:0;border-radius:50%;background:repeating-linear-gradient(0deg,rgba(255,255,255,.02),rgba(255,255,255,.02) 1px,transparent 1px,transparent 2px);mix-blend-mode:overlay;animation:noise .08s steps(2) infinite}
+.dot:after{content:'';position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle,rgba(255,0,0,.05),transparent 70%),radial-gradient(circle,rgba(0,255,0,.05),transparent 70%),radial-gradient(circle,rgba(0,0,255,.05),transparent 70%);mix-blend-mode:screen;animation:colorShift .12s infinite alternate}
+@keyframes flicker{50%{opacity:.95}}
+@keyframes noise{25%{transform:translate(-2px,1px) scaleX(1.02)}50%{transform:translate(2px,-1px) scaleX(.98)}75%{transform:translate(-1px,2px) scaleX(1.01)}}
+@keyframes colorShift{50%{transform:translate(-2px,1px) scale(1.02)}100%{transform:translate(2px,-1px) scale(.98)}}
+</style></head><body>
+<div class="time-display" id="time"></div>
+<div class="dot"></div>
+<script>
+const dot=document.querySelector('.dot');
+setInterval(()=>{dot.style.transform=`translate(${(Math.random()*2-1)}px,${(Math.random()*2-1)}px)`},1000/150);
+const t=document.getElementById('time');
+setInterval(()=>{const d=new Date();t.textContent=d.toLocaleTimeString('en-GB')},1000);t.textContent=new Date().toLocaleTimeString('en-GB');
+async function startAudio(){
+ if(sessionStorage.getItem("fas-audio")!=="1")return;
+ const ctx=new (window.AudioContext||window.webkitAudioContext)();
+ if(ctx.state==="suspended"){try{await ctx.resume()}catch(e){}}
+ const osc=ctx.createOscillator(),g=ctx.createGain();
+ osc.type="sine";osc.frequency.value=20;g.gain.value=.9;osc.connect(g);g.connect(ctx.destination);osc.start();
+ const lfo=ctx.createOscillator(),lg=ctx.createGain();
+ lfo.frequency.value=.2;lg.gain.value=10;lfo.connect(lg);lg.connect(osc.frequency);lfo.start();
+ const b=ctx.createBuffer(1,2*ctx.sampleRate,ctx.sampleRate),o=b.getChannelData(0);
+ for(let i=0;i<o.length;i++)o[i]=(Math.random()*2-1)*0.02;
+ const n=ctx.createBufferSource(),ng=ctx.createGain();n.buffer=b;n.loop=true;ng.gain.value=.5;n.connect(ng);ng.connect(ctx.destination);n.start();
+}
+startAudio();
+</script>
+</body></html>

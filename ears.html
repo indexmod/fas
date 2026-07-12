@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E A R S</title>
+
+<style>
+body{
+  margin:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  background:#fff;
+  font-family:sans-serif;
+}
+
+.container{
+  position:relative;
+  width:1200px;
+  height:400px;
+  overflow:visible;
+}
+
+.square{
+  position:absolute;
+  top:50%;
+  left:50%;
+  width:200px;
+  height:200px;
+  background:rgba(0,0,0,.45);
+  transform:translate(-50%,-50%);
+  z-index:5;
+}
+
+.earA,
+.earB{
+  position:absolute;
+  top:50%;
+  width:200px;
+  height:200px;
+  background:rgba(0,0,0,.45);
+  border-radius:50%;
+  transform:translateY(-50%);
+}
+
+.earA{
+  left:50%;
+  transform:translateX(-300px) translateY(-50%);
+  z-index:1;
+  animation:moveA 4s infinite ease-in-out;
+}
+
+.earB{
+  left:50%;
+  transform:translateX(100px) translateY(-50%);
+  z-index:10;
+  animation:moveB 4s infinite ease-in-out;
+}
+
+@keyframes moveA{
+  0%{
+    transform:translateX(-300px) translateY(-50%) scaleX(1);
+  }
+  50%{
+    transform:translateX(-100px) translateY(-50%) scaleX(.1);
+  }
+  100%{
+    transform:translateX(100px) translateY(-50%) scaleX(1);
+  }
+}
+
+@keyframes moveB{
+  0%{
+    transform:translateX(100px) translateY(-50%) scaleX(1);
+  }
+  50%{
+    transform:translateX(-100px) translateY(-50%) scaleX(.1);
+  }
+  100%{
+    transform:translateX(-300px) translateY(-50%) scaleX(1);
+  }
+}
+
+.eyes{
+  position:absolute;
+  top:50%;
+  left:50%;
+  width:0;
+  height:0;
+  transform-origin:center;
+  animation:rotateEyes 4s linear infinite;
+  z-index:6;
+}
+
+.eye{
+  position:absolute;
+  width:40px;
+  height:40px;
+  background:rgba(0,0,0,.45);
+  border-radius:50%;
+  top:-20px;
+}
+
+.eye.left{
+  left:-50px;
+}
+
+.eye.right{
+  left:50px;
+}
+
+@keyframes rotateEyes{
+  from{
+    transform:rotate(0deg);
+  }
+  to{
+    transform:rotate(360deg);
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="square"></div>
+
+<div class="earA"></div>
+
+<div class="earB"></div>
+
+<div class="eyes">
+<div class="eye left"></div>
+<div class="eye right"></div>
+</div>
+
+</div>
+<script>
+let audioCtx;
+let osc;
+let gain;
+
+async function startAudio(){
+
+  if(sessionStorage.getItem("fas-audio")!=="1") return;
+
+  audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+
+  if(audioCtx.state==="suspended"){
+    try{
+      await audioCtx.resume();
+    }catch(e){}
+  }
+
+  osc=audioCtx.createOscillator();
+  gain=audioCtx.createGain();
+
+  osc.type="sine";
+
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  gain.gain.value=0.3;
+
+  osc.start();
+
+  function modulate(){
+
+    if(!osc) return;
+
+    const now=audioCtx.currentTime;
+    const cycle=4;
+    const phase=(now%cycle)/cycle;
+
+    const freq=
+      220+
+      Math.sin(phase*Math.PI*2)*200;
+
+    osc.frequency.setValueAtTime(freq,now);
+
+    requestAnimationFrame(modulate);
+  }
+
+  modulate();
+
+}
+
+startAudio();
+</script>
+</body>
+</html>

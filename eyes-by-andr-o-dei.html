@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Анимированная пиктограмма — прыгающие глаза</title>
+  <style>
+    body {
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 100 100" role="img" aria-labelledby="title desc">
+    <title id="title">Анимированная пиктограмма: лицо</title>
+    <desc id="desc">Чёрный круг на белом фоне с глазами, которые резко прыгают по четырём углам.</desc>
+
+    <!-- фон (белый) -->
+    <rect width="100" height="100" fill="#ffffff"/>
+
+    <!-- большой чёрный круг -->
+    <circle cx="50" cy="50" r="42" fill="#000000"/>
+
+    <!-- группа глаз с анимацией -->
+    <g>
+      <!-- левый глаз -->
+      <circle cx="36" cy="40" r="6" fill="#ffffff"/>
+      <!-- правый глаз -->
+      <circle cx="64" cy="40" r="6" fill="#ffffff"/>
+
+      <!-- анимация резких прыжков -->
+      <animateTransform attributeName="transform"
+                        type="translate"
+                        dur="4s"
+                        values="4,-4; -4,-4; 4,4; -4,4; 0,0"
+                        keyTimes="0;0.25;0.5;0.75;1"
+                        calcMode="discrete"
+                        repeatCount="indefinite"/>
+    </g>
+
+    <!-- рот -->
+    <circle cx="50" cy="64" r="5" fill="#ffffff"/>
+  </svg>
+  <!-- 🔽 Вставляем этот блок в любое место страницы -->
+<section>
+  <style>
+    /* Контейнер */
+    .fav-floating {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      background: black;
+      border-radius: 50%;
+      transition: all 0.4s ease;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      z-index: 9999;
+      cursor: pointer;
+    }
+
+    /* Внутренний фавикон (иконка + точки) */
+    .fav-floating .fav-icon {
+      width: 60px;
+      height: 60px;
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .fav-floating .fav-icon svg {
+      width: 40px;
+      height: 40px;
+    }
+
+    /* Расширение контейнера */
+    .fav-floating:hover {
+      width: 180px;
+      border-radius: 40px;
+    }
+
+    /* Ссылка-стрелка */
+    .fav-floating a {
+      margin-left: auto;
+      margin-right: 20px;
+      color: white;
+      text-decoration: none;
+      font-size: 26px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    /* Появление стрелки */
+    .fav-floating:hover a {
+      opacity: 1;
+    }
+  </style>
+
+  <div class="fav-floating">
+    <div class="fav-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="45" fill="black"/>
+        <circle cx="35" cy="35" r="5" fill="white"/>
+        <circle cx="65" cy="35" r="5" fill="white"/>
+        <circle cx="50" cy="65" r="5" fill="white"/>
+      </svg>
+    </div>
+    <!-- ✏️ Редактируйте ссылку здесь -->
+    <a href="https://indexmod.github.io/chorus/ears.html" target="_blank" title="E A R S">&#10140;</a>
+  </div>
+</section>
+<!-- 🔼 Конец блока -->
+</body>
+</html>

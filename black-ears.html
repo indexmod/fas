@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Сцена с ушами и ограниченными глазами</title>
+<style>
+body {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #fff;
+  font-family: sans-serif;
+}
+
+.container {
+  position: relative;
+  width: 1200px;
+  height: 400px;
+  overflow: visible;
+}
+
+/* Чёрный квадрат */
+.square {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 150px;
+  height: 225px;
+  background: black;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+}
+
+/* Уши */
+.earA, .earB {
+  position: absolute;
+  top: 50%;
+  width: 225px;
+  height: 225px;
+  background: black;
+  border-radius: 50%;
+  transform: translateY(-50%);
+}
+
+.earA {
+  left: 50%;
+  transform: translateX(-300px) translateY(-50%);
+  z-index: -10;
+  animation: moveA 8s infinite linear;
+}
+
+.earB {
+  left: 50%;
+  transform: translateX(75px) translateY(-50%);
+  z-index: 10;
+  animation: moveB 8s infinite linear;
+}
+
+@keyframes moveA {
+  0%   { transform: translateX(-300px) translateY(-50%) scaleX(1); }
+  50%  { transform: translateX(-112.5px) translateY(-50%) scaleX(0.1); }
+  100% { transform: translateX(75px) translateY(-50%) scaleX(1); }
+}
+
+@keyframes moveB {
+  0%   { transform: translateX(75px) translateY(-50%) scaleX(1); }
+  50%  { transform: translateX(-112.5px) translateY(-50%) scaleX(0.1); }
+  100% { transform: translateX(-300px) translateY(-50%) scaleX(1); }
+}
+
+/* Маска для глаз и рта */
+.mask {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 150px;
+  height: 225px;
+  transform: translate(-50%, -50%);
+  overflow: hidden;
+  z-index: 6; /* над квадратом, под ухом B */
+}
+
+/* Ряды глаз и рта */
+.scroll-top, .scroll-bottom {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 10px;
+  position: absolute;
+  left: 0;
+  animation: scroll 3s linear infinite;
+}
+
+/* Верхний ряд глаз — два глазика и чуть ниже */
+.scroll-top {
+  top: 35%; /* чуть ниже верхней границы квадрата */
+  justify-content: center;
+  gap: 40px; /* расстояние между глазами */
+}
+
+/* Нижний ряд рта — один ряд */
+.scroll-bottom {
+  top: 65%;
+  justify-content: center;
+  gap: 30px;
+  animation-duration: 6s;
+}
+
+.dot {
+  width: 30px;
+  height: 30px;
+  background: white;
+  border-radius: 50%;
+}
+
+/* Анимация прокрутки */
+@keyframes scroll {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="square"></div>
+  <div class="earA"></div>
+  <div class="earB"></div>
+
+  <!-- Маска для глаз и рта -->
+  <div class="mask">
+    <!-- Верхний ряд глаз (два глаза) -->
+    <div class="scroll-top">
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+    <!-- Нижний ряд рта -->
+    <div class="scroll-bottom">
+    </div>
+  </div>
+</div>
+
+<script>
+// Пульсирующий звук
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playPulse() {
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+  gain.gain.setValueAtTime(0, audioCtx.currentTime);
+  gain.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.2);
+  gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.4);
+
+  osc.start();
+  osc.stop(audioCtx.currentTime + 0.4);
+}
+
+setInterval(playPulse, 1000);
+</script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Маски + звук</title>
+  <style>
+    body {
+      background: #000;
+      margin: 0;
+      padding: 10px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      grid-auto-rows: auto;
+      gap: 10px;
+      justify-items: center;
+      align-items: center;
+    }
+    #startBtn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      padding: 10px 20px;
+      font-size: 18px;
+      cursor: pointer;
+      z-index: 9999;
+    }
+    img {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <button id="startBtn">▶ Старт</button>
+
+  <script>
+    const faceSize = 100;
+    const maxMasks = 300;
+    let audioCtx = null;
+
+    // --- Web Audio API ---
+    function playRandomTone() {
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+
+      // частота 200–1200 Гц
+      const freq = 200 + Math.random() * 1000;
+      osc.frequency.value = freq;
+      osc.type = "sine";
+
+      // громкость и затухание
+      gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(
+        0.001,
+        audioCtx.currentTime + 0.3
+      );
+
+      osc.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.3);
+    }
+
+    // --- Маски ---
+    function createMask(size) {
+      const faceR = 42;
+
+      const eyeBaseY = 38 + Math.random() * 6;
+      const eyeBaseX = 35 + Math.random() * 4;
+      const eyeGap = 28 + Math.random() * 6;
+
+      const maxEyeR = 12;
+      const eyeR = Math.random() * maxEyeR;
+
+      const mouthY = 62 + Math.random() * 6;
+      const maxMouthR = 16;
+      const mouthR = 4 + Math.random() * maxMouthR;
+
+      return `
+        <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 100 100">
+          <rect width="100" height="100" fill="#000000"/>
+          <circle cx="50" cy="50" r="${faceR}" fill="#ffffff"/>
+          <circle cx="${eyeBaseX}" cy="${eyeBaseY}" r="${eyeR.toFixed(2)}" fill="#000000"/>
+          <circle cx="${eyeBaseX + eyeGap}" cy="${eyeBaseY}" r="${eyeR.toFixed(2)}" fill="#000000"/>
+          <circle cx="50" cy="${mouthY}" r="${mouthR.toFixed(2)}" fill="#000000"/>
+        </svg>
+      `;
+    }
+
+    function svgToPng(svgStr, size, callback) {
+      const img = new Image();
+      const svgBlob = new Blob([svgStr], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(svgBlob);
+
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext("2d");
+        ctx.fillStyle = "#000";
+        ctx.fillRect(0, 0, size, size);
+        ctx.drawImage(img, 0, 0, size, size);
+
+        const pngUrl = canvas.toDataURL("image/png");
+        URL.revokeObjectURL(url);
+        callback(pngUrl);
+      };
+      img.src = url;
+    }
+
+    function addMask() {
+      const svg = createMask(faceSize);
+      svgToPng(svg, faceSize, (pngUrl) => {
+        const img = document.createElement("img");
+        img.src = pngUrl;
+        img.width = faceSize;
+        img.height = faceSize;
+
+        if (document.body.firstChild) {
+          document.body.insertBefore(img, document.body.firstChild);
+        } else {
+          document.body.appendChild(img);
+        }
+
+        if (document.body.childElementCount > maxMasks) {
+          document.body.removeChild(document.body.lastChild);
+        }
+      });
+    }
+
+    // --- Запуск после клика ---
+    document.getElementById("startBtn").addEventListener("click", async () => {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        await audioCtx.resume();
+      }
+      document.getElementById("startBtn").style.display = "none";
+
+      setInterval(() => {
+        addMask();
+        playRandomTone();
+      }, 500);
+    });
+  </script>
+</body>
+</html>

@@ -1,206 +1,74 @@
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<title>Фас</title>
-
-<link rel="icon" type="image/svg+xml"
-href='data:image/svg+xml,
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-<rect width="100" height="100" fill="white"/>
-<circle cx="50" cy="50" r="40" fill="black"/>
-</svg>'>
+<title>FAS Player</title>
 
 <style>
-
 html,body{
-margin:0;
-padding:0;
-background:black;
-font-family:Helvetica, Arial, sans-serif;
-overflow:hidden;
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#000;
 }
-
-/* FULLSCREEN VIDEO */
-
-video{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-object-fit:cover;
-z-index:0;
+iframe{
+    width:100%;
+    height:100%;
+    border:0;
 }
-
-/* OVERLAY CONTENT */
-
-.overlay{
-position:fixed;
-left:0;
-right:0;
-bottom:100px;
-display:flex;
-justify-content:space-between;
-align-items:flex-end;
-padding:0 6vw;
-z-index:2;
-color:black;
-}
-
-/* TEXT */
-
-.credits{
-font-size:25px;
-line-height:1.4;
-max-width:520px;
-}
-
-/* BUTTON */
-
-.linkButton{
-width:70px;
-height:70px;
-border-radius:50%;
-background:black;
-flex-shrink:0;
-animation:pulse 2s infinite;
-}
-
-/* PULSE */
-
-@keyframes pulse{
-0%{transform:scale(1)}
-50%{transform:scale(1.1)}
-100%{transform:scale(1)}
-}
-
-/* START SCREEN */
-
-#startScreen{
-position:fixed;
-inset:0;
-display:flex;
-justify-content:center;
-align-items:center;
-background:white;
-z-index:10;
-transition:opacity 1s;
-}
-
-#playButton{
-width:120px;
-height:120px;
-border-radius:60px;
-background:black;
-cursor:pointer;
-animation:pulse 2s infinite;
-}
-
-/* MOBILE */
-
-@media (max-width:700px){
-
-.overlay{
-flex-direction:column;
-align-items:flex-start;
-gap:20px;
-bottom:80px;
-}
-
-.linkButton{
-width:60px;
-height:60px;
-}
-
-.credits{
-font-size:13px;
-max-width:90%;
-}
-
-}
-
 </style>
 </head>
-
 <body>
 
-<div id="startScreen">
-<div id="playButton"></div>
-</div>
-
-<video id="videoPlayer" playsinline autoplay loop></video>
-
-<div class="overlay">
-
-<div class="credits">
-Работа (без названия, не окончена) из серии «24 Хор». Материал — фанера, чёрный и красный маркер. 120×60. Андр-о-Дей. 2026, март. Музыка: Molchat Doma — “Sudno (Boris Ryzhy)”.
-</div>
-
-<a href="https://fas.indexmod.xyz/" class="linkButton"></a>
-
-</div>
-
-<audio id="audioPlayer" loop></audio>
-
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<iframe id="frame"></iframe>
 
 <script>
+const OWNER = "indexmod";
+const REPO  = "fas";
+const BRANCH = "main";      // если ветка master — поменяй на master
 
-const video=document.getElementById("videoPlayer")
-const audio=document.getElementById("audioPlayer")
-const startScreen=document.getElementById("startScreen")
-const playButton=document.getElementById("playButton")
+let files = [];
+let index = 0;
 
-const VIDEO_SRC="/video/video.m3u8"
-const AUDIO_SRC="/audio/audio.m3u8"
+async function loadFiles(path = "") {
 
-function initVideo(){
+    const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}?ref=${BRANCH}`;
+    const data = await fetch(url).then(r => r.json());
 
-if(Hls.isSupported()){
-const hlsVideo=new Hls()
-hlsVideo.loadSource(VIDEO_SRC)
-hlsVideo.attachMedia(video)
-}else{
-video.src=VIDEO_SRC
+    for (const item of data) {
+
+        if (item.type === "dir") {
+            await loadFiles(item.path);          // обходим папки
+        }
+
+        if (item.type === "file" && item.name.endsWith(".html")) {
+            files.push(`https://${OWNER}.github.io/${REPO}/${item.path}`);
+        }
+    }
 }
 
-video.loop=true
-video.play()
+function next() {
 
+    if (!files.length) return;
+
+    document.getElementById("frame").src =
+        files[index] + "?t=" + Date.now();
+
+    index = (index + 1) % files.length;
 }
 
-function initAudio(){
+(async () => {
 
-if(Hls.isSupported()){
-const hlsAudio=new Hls()
-hlsAudio.loadSource(AUDIO_SRC)
-hlsAudio.attachMedia(audio)
-}else{
-audio.src=AUDIO_SRC
-}
+    await loadFiles();
 
-audio.loop=true
-audio.play()
+    // случайный порядок
+    files.sort(() => Math.random() - 0.5);
 
-}
+    next();
+    setInterval(next, 10000);
 
-playButton.onclick=()=>{
-
-startScreen.style.opacity=0
-
-setTimeout(()=>{
-startScreen.style.display="none"
-},1000)
-
-initVideo()
-initAudio()
-
-}
-
+})();
 </script>
 
 </body>

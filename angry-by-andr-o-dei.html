@@ -1,197 +1,153 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>A N G R Y by Andr-o-Dei</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='black' /%3E%3Ccircle cx='35' cy='35' r='5' fill='white' /%3E%3Ccircle cx='65' cy='35' r='5' fill='white' /%3E%3Ccircle cx='50' cy='65' r='5' fill='white' /%3E%3C/svg%3E" type="image/svg+xml">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+<title>A N G R Y by Andr-o-Dei</title>
 
-    html, body {
-      height: 100%;
-      background-color: black;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='black'/%3E%3Ccircle cx='35' cy='35' r='5' fill='white'/%3E%3Ccircle cx='65' cy='35' r='5' fill='white'/%3E%3Ccircle cx='50' cy='65' r='5' fill='white'/%3E%3C/svg%3E" type="image/svg+xml">
 
-    .circle {
-      position: absolute;
-      background-color: white;
-      border-radius: 50%;
-      width: 400px;
-      height: 400px;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-    }
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
 
-    .overlay-lines {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 10;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      pointer-events: none;
-    }
+html,
+body{
+    height:100%;
+    background:#000;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+}
 
-    .top-lines {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 100px;
-    }
+.circle{
+    position:absolute;
+    width:400px;
+    height:400px;
+    background:#fff;
+    border-radius:50%;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+}
 
-    .line {
-      width: 200px;
-      height: 20px;
-      background: black;
-      transform-origin: center;
-      transition: transform 0.3s ease-out;
-    }
+.overlay-lines{
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    z-index:10;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    pointer-events:none;
+}
 
-    .gap {
-      width: 50px;
-      height: 20px;
-    }
-  </style>
+.top-lines{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    margin-bottom:100px;
+}
+
+.line{
+    width:200px;
+    height:20px;
+    background:#000;
+    transform-origin:center;
+    transition:transform .3s ease-out;
+}
+
+.gap{
+    width:50px;
+    height:20px;
+}
+</style>
+
 </head>
+
 <body>
 
-  <div id="circle" class="circle"></div>
+<div id="circle" class="circle"></div>
 
-  <div class="overlay-lines">
+<div class="overlay-lines">
+
     <div class="top-lines">
-      <div id="lineLeft" class="line"></div>
-      <div class="gap"></div>
-      <div id="lineRight" class="line"></div>
+
+        <div id="lineLeft" class="line"></div>
+
+        <div class="gap"></div>
+
+        <div id="lineRight" class="line"></div>
+
     </div>
+
     <div id="lineBottom" class="line"></div>
-  </div>
 
-  <script>
-  const circle = document.getElementById('circle');
-  const lineLeft = document.getElementById('lineLeft');
-  const lineRight = document.getElementById('lineRight');
-  const lineBottom = document.getElementById('lineBottom');
+</div>
 
-  // 🔧 Диапазон движения
-  let movementRange = 150; // круг ±150px
-  let parallaxFactor = 0.5; // линии двигаются в противоположную сторону с меньшей амплитудой
+<script>
 
-  function moveCircle() {
-    const offsetX = (Math.random() - 0.5) * 2 * movementRange;
-    const offsetY = (Math.random() - 0.5) * 2 * movementRange;
+const circle=document.getElementById("circle");
 
-    // режимы: 0 = X, 1 = Y, 2 = диагональ
-    const mode = Math.floor(Math.random() * 3);
+const lineLeft=document.getElementById("lineLeft");
+const lineRight=document.getElementById("lineRight");
+const lineBottom=document.getElementById("lineBottom");
 
-    let finalX = 0, finalY = 0;
-    if (mode === 0) {
-      finalX = offsetX;
-    } else if (mode === 1) {
-      finalY = offsetY;
-    } else {
-      finalX = offsetX;
-      finalY = offsetY;
+const movementRange=150;
+const parallaxFactor=0.5;
+
+function moveCircle(){
+
+    const offsetX=(Math.random()-0.5)*2*movementRange;
+    const offsetY=(Math.random()-0.5)*2*movementRange;
+
+    const mode=Math.floor(Math.random()*3);
+
+    let x=0;
+    let y=0;
+
+    if(mode===0){
+
+        x=offsetX;
+
+    }else if(mode===1){
+
+        y=offsetY;
+
+    }else{
+
+        x=offsetX;
+        y=offsetY;
+
     }
 
-    // круг
-    circle.style.transition = "transform 0.3s ease-out";
-    circle.style.transform = `translate(calc(-50% + ${finalX}px), calc(-50% + ${finalY}px))`;
+    circle.style.transition="transform .3s ease-out";
 
-    // линии (параллакс в противоположную сторону)
-    const lineOffsetX = -finalX * parallaxFactor;
-    const lineOffsetY = -finalY * parallaxFactor;
+    circle.style.transform=
+        `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
 
-    lineLeft.style.transform = `translate(${lineOffsetX}px, ${lineOffsetY}px)`;
-    lineRight.style.transform = `translate(${lineOffsetX}px, ${lineOffsetY}px)`;
-    lineBottom.style.transform = `translate(${lineOffsetX}px, ${lineOffsetY}px)`;
-  }
+    const lx=-x*parallaxFactor;
+    const ly=-y*parallaxFactor;
 
-  setInterval(moveCircle, 500 + Math.random() * 1500);
+    const t=`translate(${lx}px,${ly}px)`;
+
+    lineLeft.style.transform=t;
+    lineRight.style.transform=t;
+    lineBottom.style.transform=t;
+
+}
+
+moveCircle();
+
+setInterval(moveCircle,500+Math.random()*1500);
+
 </script>
-
-  <!-- 🔽 Вставляем этот блок в любое место страницы -->
-<section>
-  <style>
-    /* Контейнер */
-    .fav-floating {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      width: 60px;
-      height: 60px;
-      background: black;
-      border-radius: 50%;
-      transition: all 0.4s ease;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      z-index: 9999;
-      cursor: pointer;
-    }
-
-    /* Внутренний фавикон (иконка + точки) */
-    .fav-floating .fav-icon {
-      width: 60px;
-      height: 60px;
-      flex: 0 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .fav-floating .fav-icon svg {
-      width: 40px;
-      height: 40px;
-    }
-
-    /* Расширение контейнера */
-    .fav-floating:hover {
-      width: 180px;
-      border-radius: 40px;
-    }
-
-    /* Ссылка-стрелка */
-    .fav-floating a {
-      margin-left: auto;
-      margin-right: 20px;
-      color: white;
-      text-decoration: none;
-      font-size: 26px;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-
-    /* Появление стрелки */
-    .fav-floating:hover a {
-      opacity: 1;
-    }
-  </style>
-
-  <div class="fav-floating">
-    <div class="fav-icon">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-        <circle cx="50" cy="50" r="45" fill="black"/>
-        <circle cx="35" cy="35" r="5" fill="white"/>
-        <circle cx="65" cy="35" r="5" fill="white"/>
-        <circle cx="50" cy="65" r="5" fill="white"/>
-      </svg>
-    </div>
-    <!-- ✏️ Редактируйте ссылку здесь -->
-    <a href="https://indexmod.github.io/chorus/eyes-by-andr-o-dei.html" target="_blank" title="E Y E S">&#10140;</a>
-  </div>
-</section>
-<!-- 🔼 Конец блока -->
 
 </body>
 </html>

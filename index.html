@@ -13,6 +13,8 @@ html,body{
     background:#000;
 }
 iframe{
+    position:fixed;
+    inset:0;
     width:100%;
     height:100%;
     border:0;
@@ -24,51 +26,43 @@ iframe{
 <iframe id="frame"></iframe>
 
 <script>
-const OWNER = "indexmod";
-const REPO  = "fas";
-const BRANCH = "main";      // если ветка master — поменяй на master
+const API="https://api.github.com/repos/indexmod/fas/contents";
+const BASE="https://fas.indexmod.press/";
 
-let files = [];
-let index = 0;
+let pages=[];
+let i=0;
 
-async function loadFiles(path = "") {
+async function init(){
 
-    const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}?ref=${BRANCH}`;
-    const data = await fetch(url).then(r => r.json());
+    const r=await fetch(API);
+    const data=await r.json();
 
-    for (const item of data) {
+    pages=data
+        .filter(f=>f.type==="file")
+        .filter(f=>f.name.endsWith(".html"))
+        .filter(f=>f.name!=="index.html")
+        .map(f=>BASE+encodeURIComponent(f.name));
 
-        if (item.type === "dir") {
-            await loadFiles(item.path);          // обходим папки
-        }
+    console.log(pages);
 
-        if (item.type === "file" && item.name.endsWith(".html")) {
-            files.push(`https://${OWNER}.github.io/${REPO}/${item.path}`);
-        }
+    if(!pages.length){
+        document.body.innerHTML="<h1 style='color:white'>No HTML files</h1>";
+        return;
     }
+
+    show();
+
+    setInterval(show,10000);
 }
 
-function next() {
+function show(){
 
-    if (!files.length) return;
+    frame.src=pages[i]+"?"+Date.now();
 
-    document.getElementById("frame").src =
-        files[index] + "?t=" + Date.now();
-
-    index = (index + 1) % files.length;
+    i=(i+1)%pages.length;
 }
 
-(async () => {
-
-    await loadFiles();
-
-    // случайный порядок
-    files.sort(() => Math.random() - 0.5);
-
-    next();
-    setInterval(next, 10000);
-
-})();
+init();
 </script>
 
 </body>

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>FAS</title>
+<title>Фас</title>
 
 <style>
 html,body{
@@ -40,7 +40,7 @@ iframe{
     width:140px;
     height:140px;
     border-radius:50%;
-    border:2px solid #fff;
+    border:10px solid #fff;
     cursor:pointer;
     animation:pulse 2s infinite;
     display:flex;
@@ -72,7 +72,7 @@ iframe{
 <body>
 
 <div id="overlay">
-    <div id="start">ENTER</div>
+    <div id="start"></div>
 </div>
 
 <iframe id="frame"></iframe>
@@ -138,7 +138,7 @@ document.getElementById("start").addEventListener("click",async()=>{
         frame.contentWindow.postMessage("START","*");
     };
 
-    setInterval(next,10000);
+    setInterval(next,30000);
 
 });
 
